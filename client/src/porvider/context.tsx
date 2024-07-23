@@ -20,6 +20,7 @@ export const GameContextProvider = ({ children }: any) => {
   const [squaresSelected, setSquaresSelected] = useState<string[]>([])
 
   const [showAlert, setShowAlert] = useState(true)
+  const [waitForUser, setWaitForUser] = useState(false)
   const [isPeonInGoal, setIsPeonInGoal] = useState(false)
   const [multiJugador, setMultiJugador] = useState(true)
   const [turn, setTurn] = useState("white")
@@ -34,6 +35,11 @@ export const GameContextProvider = ({ children }: any) => {
       socket.emit("find", {
         id: socket.id,
         
+      })
+      socket.on('waitForPlayer',()=>{
+        setShowAlert(true)
+        setWaitForUser(true)
+
       })
      
       socket.on('userRegister', (data) => {
@@ -80,9 +86,10 @@ export const GameContextProvider = ({ children }: any) => {
     
     
     
+    socket.on("userIsDisconected", () => {
+      setShowAlert(true)
     
-    
-    
+    })
     
     })
     
@@ -231,7 +238,7 @@ export const GameContextProvider = ({ children }: any) => {
 
   const values ={
     piecesWhite,piecesBlack,turn , piecetomove, setPiecetomove , moverToSquare,squaresSelected, setSquaresSelected ,showAlert, setShowAlert
-  ,changePeonInGoal,isPeonInGoal ,multiJugador ,userTurn, setUserTurn , userId
+  ,changePeonInGoal,isPeonInGoal ,multiJugador ,userTurn, setUserTurn , userId ,waitForUser
   }
   return (
     <gameContext.Provider value={values}>

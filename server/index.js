@@ -18,6 +18,7 @@ io.on("connection", (socket) => {
     const savedPlayer = allPlayers.find(p => p.id == data.id)
 
     console.log('data',data);
+
     
     if (!savedPlayer && allPlayers.length < 2) {
       allPlayers.push({
@@ -28,6 +29,7 @@ io.on("connection", (socket) => {
      
       
     }
+    socket.emit('waitForPlayer',allPlayers)
 
     
     if (allPlayers.length == 2){
@@ -71,6 +73,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
     allPlayers = allPlayers.filter(p => p.id != socket.id)
+
+    io.emit('userIsDisconected',allPlayers)
     
   });
 });
