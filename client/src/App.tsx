@@ -4,7 +4,8 @@ import io from "socket.io-client";
 import useGameContext from "./porvider/context";
 import { generateRandomString } from "./porvider/const";
 import { Piece } from "./porvider/data";
-import { movePieceCaballo, movePieceKing, movePiecePeon } from "./porvider/movePieces";
+import { movePieceAlfil, movePieceCaballo, movePieceKing, movePiecePeon, movePieceReina, movePieceTorre } from "./porvider/movePieces";
+import CoverBoard from "./UI/CoverBoard";
 // 192.168.1.153
 const socket = io("localhost:3000");
 
@@ -16,7 +17,7 @@ function App() {
 
 
   useEffect(() => {
-   console.log('squaresSelected',squaresSelected);
+   
    
     
     
@@ -25,6 +26,8 @@ function App() {
 
   return (
     <main className='w-screen h-screen bg-red-400 flex justify-center items-center'>
+      <CoverBoard/>
+      
       <Board  />
     
     </main>
@@ -144,6 +147,39 @@ const Board = () => {
                       youCanMove: setSquaresSelected,
                       piece,
                     })
+                  }else if (piece?.ficha === 'torre') {
+                    movePieceTorre({
+                      currentLocation,
+                      currentRowIndex,
+                      youCanMove: setSquaresSelected,
+                      ocupedSpot: [...piecesWhite.map(piece => piece.initialPlace),... piecesBlack.map(piece => piece.initialPlace)],
+                    })
+                  }else if (piece?.ficha === 'alfil') {
+                    console.log('piece?.ficha',piece?.ficha);
+                    
+                    movePieceAlfil({
+                      piece,
+                      currentLocation,
+                      currentRowIndex,
+                      youCanMove: setSquaresSelected,
+                      ocupedSpot: [...piecesWhite.map(piece => piece.initialPlace),... piecesBlack.map(piece => piece.initialPlace)],
+                      
+                    })
+                  }
+                  
+                  else if (piece?.ficha === 'reina') {
+                    movePieceReina({
+                      piece,
+                      currentLocation,
+                      currentRowIndex,
+                      youCanMove: setSquaresSelected,
+                      ocupedSpot: [...piecesWhite.map(piece => piece.initialPlace),... piecesBlack.map(piece => piece.initialPlace)],
+                    })
+                    
+
+
+
+
                   }
                   
                }
@@ -152,7 +188,7 @@ const Board = () => {
                 
                 key={generateRandomString(3)} className={` ${isBlack ? 'bg-white text-black' : 'bg-black text-white'} relative z-0  w-[54px] h-[54px] sm:w-16 sm:h-16  border border-black flex justify-center items-center`}>
                   <p className="absolute z-0">{location}</p>
-                    <div className={`w-full h-full relative z-10  ${squareToMove === location ? (turn === 'white' ? piecesAlyWhite.includes(location) ? '' : 'bg-green-500/50' : piecesAlyBlack.includes(location) ? '' : 'bg-green-500/50') : ''}`}>  </div>
+                    <div className={`w-full h-full relative z-10  ${squareToMove === location ? (turn === 'white' ? piecesAlyWhite.includes(location) ? '' : 'bg-yellow-500/50' : piecesAlyBlack.includes(location) ? '' : 'bg-yellow-500/50') : ''}`}>  </div>
                     <SearchPiece pieces={piecesWhite} color="white" location={location} />
                     <SearchPiece pieces={piecesBlack} color="black"  location={location} />
                  

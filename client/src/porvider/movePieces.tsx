@@ -145,3 +145,349 @@ export const movePieceKing = ({
 
   youCanMove(allMoveAvailable);
 }
+
+export const movePieceTorre = ({
+  currentLocation,
+  currentRowIndex,
+  youCanMove,
+  ocupedSpot,
+}: {
+  currentRowIndex: number;
+  currentLocation: { row: string; col: number };
+  youCanMove: React.Dispatch<React.SetStateAction<string[]>>;
+  ocupedSpot: string[];
+}) => {
+  const allMoveAvailable = [];
+
+  for (let i = currentLocation.col - 1; i > 0; i--) {
+    //vertical Up
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+  for (let i = currentLocation.col + 1; i < 9; i++) {
+    //vertical  down
+
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex + 1; i < 8; i++) {
+    // horizontal right
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex - 1; i > -1; i--) {
+    // horizontal left
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  youCanMove(allMoveAvailable);
+};
+
+export const movePieceAlfil2 = ({
+  currentLocation,
+  currentRowIndex,
+  youCanMove,
+  ocupedSpot,
+}: {
+  currentRowIndex: number;
+  currentLocation: { row: string; col: number };
+  youCanMove: React.Dispatch<React.SetStateAction<string[]>>;
+  ocupedSpot: string[];
+}) => {
+  const allMoveAvailable = [];
+  for (let i = currentLocation.col - 1; i > 0; i--) {
+    //vertical Up
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+  for (let i = currentLocation.col + 1; i < 9; i++) {
+    //vertical  down
+
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex + 1; i < 8; i++) {
+    // horizontal right
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex - 1; i > -1; i--) {
+    // horizontal left
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  youCanMove(allMoveAvailable);
+};
+export const movePieceAlfil = ({
+  currentRowIndex,
+  currentLocation,
+  piece,
+  youCanMove,
+  ocupedSpot,
+}: {
+  currentRowIndex: number;
+  currentLocation: { row: string; col: number };
+  piece: Piece;
+  youCanMove: React.Dispatch<React.SetStateAction<string[]>>;
+  ocupedSpot: string[];
+}) => {
+  const allMoveAvailable = [];
+  const validCol = [];
+
+  for (let i = 0; i < 9; i++) {
+    validCol.push(i);
+  }
+
+  const validRowLeftUp = [];
+  const validRowLeftDown = [];
+
+  for (let a = 1; a < 9; a++) {
+    validRowLeftUp.push(cols[currentRowIndex - a]);
+  }
+
+  for (let a = 0; a < 9; a++) {
+    validRowLeftDown.push(cols[currentRowIndex - a - 1]);
+  }
+
+  const validRowRightUp = [];
+  const validRowRightDown = [];
+
+  for (let a = currentLocation.col; a > 0; a--) {
+    cols[currentRowIndex + a] &&
+      validRowRightUp.unshift(cols[currentRowIndex + a]);
+  }
+  for (let a = 9; a > 0; a--) {
+    cols[currentRowIndex + a] &&
+      validRowRightDown.unshift(cols[currentRowIndex + a]);
+  }
+
+  // Left Up
+  for (let i = 0; i < validRowLeftUp.length; i++) {
+    const createdLocation = validRowLeftUp[i] + (currentLocation.col - (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  // Left Down
+  for (let i = 0; i < 9; i++) {
+    const createdLocation =
+      validRowLeftDown[i] + (currentLocation.col + (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+  // Right Up
+  for (let i = 0; i < validRowRightUp.length; i++) {
+    const createdLocation =
+      validRowRightUp[i] + (currentLocation.col - (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  // Right Down
+  for (let i = 0; i < validRowRightDown.length; i++) {
+    const createdLocation =
+      validRowRightDown[i] + (currentLocation.col + (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  youCanMove(allMoveAvailable);
+};
+
+export const movePieceReina = ({
+  currentLocation,
+  currentRowIndex,
+  youCanMove,
+  ocupedSpot,
+  piece
+}: {
+  currentRowIndex: number;
+  currentLocation: { row: string; col: number };
+  youCanMove: React.Dispatch<React.SetStateAction<string[]>>;
+  ocupedSpot: string[];
+  piece: Piece
+}) => {
+  const allMoveAvailable = [];
+  for (let i = currentLocation.col - 1; i > 0; i--) {
+    //vertical Up
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+  for (let i = currentLocation.col + 1; i < 9; i++) {
+    //vertical  down
+
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex + 1; i < 8; i++) {
+    // horizontal right
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex - 1; i > -1; i--) {
+    // horizontal left
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentLocation.col - 1; i > 0; i--) {
+    //vertical Up
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+  for (let i = currentLocation.col + 1; i < 9; i++) {
+    //vertical  down
+
+    const createdLocation = currentLocation.row + i;
+    allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex + 1; i < 8; i++) {
+    // horizontal right
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  for (let i = currentRowIndex - 1; i > -1; i--) {
+    // horizontal left
+    const createdLocation = cols[i] + currentLocation.col;
+    allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+  const validRowLeftUp = [];
+  const validRowLeftDown = [];
+
+  for (let a = 1; a < 9; a++) {
+    validRowLeftUp.push(cols[currentRowIndex - a]);
+  }
+
+  for (let a = 0; a < 9; a++) {
+    validRowLeftDown.push(cols[currentRowIndex - a - 1]);
+  }
+
+  const validRowRightUp = [];
+  const validRowRightDown = [];
+
+  for (let a = currentLocation.col; a > 0; a--) {
+    cols[currentRowIndex + a] &&
+      validRowRightUp.unshift(cols[currentRowIndex + a]);
+  }
+  for (let a = 9; a > 0; a--) {
+    cols[currentRowIndex + a] &&
+      validRowRightDown.unshift(cols[currentRowIndex + a]);
+  }
+
+  // Left Up
+  for (let i = 0; i < validRowLeftUp.length; i++) {
+    const createdLocation = validRowLeftUp[i] + (currentLocation.col - (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  // Left Down
+  for (let i = 0; i < 9; i++) {
+    const createdLocation =
+      validRowLeftDown[i] + (currentLocation.col + (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+  // Right Up
+  for (let i = 0; i < validRowRightUp.length; i++) {
+    const createdLocation =
+      validRowRightUp[i] + (currentLocation.col - (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  // Right Down
+  for (let i = 0; i < validRowRightDown.length; i++) {
+    const createdLocation =
+      validRowRightDown[i] + (currentLocation.col + (i + 1));
+    piece.initialPlace != createdLocation && allMoveAvailable.push(createdLocation);
+    if (ocupedSpot.includes(createdLocation)) {
+      break; // Termina el bucle si se encuentra una ubicación ocupada
+    }
+  }
+
+  youCanMove(allMoveAvailable);
+};
+

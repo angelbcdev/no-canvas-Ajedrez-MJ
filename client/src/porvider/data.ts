@@ -19,7 +19,7 @@ export interface Piece {
 
 export const fichasWhite: Piece[] =
 
-[
+ [
   { ficha: "peon", initialPlace: "a2", idPiece: "RO5FCzYW" ,color:"white"},
   { ficha: "peon", initialPlace: "b2", idPiece: "DmDg6pMZ",color:"white" },
   { ficha: "peon", initialPlace: "c2", idPiece: "pqMYbTSA",color:"white" },

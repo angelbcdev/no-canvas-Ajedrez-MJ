@@ -15,17 +15,17 @@ export const GameContextProvider = ({ children }: any) => {
   const [piecetomove, setPiecetomove] = useState("")
   const [squaresSelected, setSquaresSelected] = useState<string[]>([])
 
-
-
+  const [showAlert, setShowAlert] = useState(false)
+  const [isPeonInGoal, setIsPeonInGoal] = useState(false)
   const moverToSquare = ({newLocation }:{newLocation:string}) => {
-  
-   
-    
+
     if (turn === "white" ){
       const piece = piecesWhite.find(piece => piece.idPiece === piecetomove)
       const oldPiece = piecesWhite.filter(piece => piece.idPiece !== piecetomove)
     
       if (piece !== undefined) {
+        
+        
 
         if (piecesWhite.map(piece => piece.initialPlace).includes(newLocation)) {
           return 
@@ -42,6 +42,15 @@ export const GameContextProvider = ({ children }: any) => {
           if (findEnemy !== undefined) {
             setPiecesBlack(piecesBlack.filter(piece => piece.idPiece !== findEnemy.idPiece))
           }
+          if (piece.ficha === 'peon' && newLocation[1] === '8' ){
+          
+            setPiecetomove(piece.idPiece +'-'+ piece.color)
+            setIsPeonInGoal(true)
+            setShowAlert(true)
+            
+            
+          }
+          
 
         }else{
           setSquaresSelected([])
@@ -76,6 +85,14 @@ export const GameContextProvider = ({ children }: any) => {
           if (findEnemy !== undefined) {
             setPiecesWhite(piecesWhite.filter(piece => piece.idPiece !== findEnemy.idPiece))
           }
+          if (piece.ficha === 'peon' && newLocation[1] === '1' ){
+          
+            setPiecetomove(piece.idPiece +'-'+ piece.color)
+            setIsPeonInGoal(true)
+            setShowAlert(true)
+            
+            
+          }
 
         }else{
           setSquaresSelected([])
@@ -86,14 +103,42 @@ export const GameContextProvider = ({ children }: any) => {
         // 
       }
     }
+    
 
+    
+  }
+  const changePeonInGoal = (change:string) => {
+    
+    const details = piecetomove.split('-')
+    console.log('details',details);
+    
+    if (details[1] === 'white') {
+      const pieceToSchante = piecesWhite.find(piece => piece.idPiece === details[0])
+      const oldPiece = piecesWhite.filter(piece => piece.idPiece !== details[0])
+      if (pieceToSchante !== undefined) {
+        setPiecesWhite([...oldPiece, {...pieceToSchante, ficha: change}])
+      }
+      setShowAlert(false)
+      setIsPeonInGoal(false)
+    }else if (details[1] === 'black') {
+      const pieceToSchante = piecesBlack.find(piece => piece.idPiece === details[0])
+      const oldPiece = piecesBlack.filter(piece => piece.idPiece !== details[0])
+      if (pieceToSchante !== undefined) {
+        setPiecesBlack([...oldPiece, {...pieceToSchante, ficha: change}])
+      }
+      setShowAlert(false)
+      setIsPeonInGoal(false)
+    }
+    
+    // setChangePeonInGoal(false)
     
   }
 
 
 
   const values ={
-    piecesWhite,piecesBlack,turn , piecetomove, setPiecetomove , moverToSquare,squaresSelected, setSquaresSelected
+    piecesWhite,piecesBlack,turn , piecetomove, setPiecetomove , moverToSquare,squaresSelected, setSquaresSelected ,showAlert, setShowAlert
+  ,changePeonInGoal,isPeonInGoal
   }
   return (
     <gameContext.Provider value={values}>
