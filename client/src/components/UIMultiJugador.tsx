@@ -1,17 +1,59 @@
+import { useEffect, useRef, useState } from "react";
 import useGameContext from "../porvider/context";
 import { Piece, PieceName } from "../porvider/data";
 
 const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
-  const { userTurn, userId, turn  ,piecesWhite, piecesBlack ,showPiecesCount ,setShowPiecesCount } = useGameContext();
+  const { userTurn, userId, turn  ,piecesWhite, piecesBlack ,showPiecesCount ,setShowPiecesCount ,history ,piecetomove} = useGameContext();
+  const [showHistory, setShowHistory] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
+    }
+    
+  }, [history]);
+
+  useEffect(() => {
+
+    setShowHistory(false)
+  }, [piecetomove]);
 
   const isWhite = userTurn == "white";
   return (
     <div className="font-montserrat  select-none ">
+     
       <p className=" text-2xl text-center mb-6 py-6  bg-black text-white rounded-lg">
         {" "}
         Turno de las {turn == "white" ? " blancas" : "negras"}
       </p>
-
+        <div className="relative"
+        onClick={() => setShowHistory(!showHistory)}
+        >
+          <p className=" text-2xl text-center mb-6 py-3  bg-black text-white rounded-lg ">Last Move: {history[history.length - 1]}</p>
+          <p className=" absolute bottom-4 left-4 z-30 text-center  bg-black text-white rounded-lg ">{showHistory ? "Hide History" : "Show History"}</p>
+         <div 
+         ref={scrollContainerRef}
+         className={` overflow-scroll absolute  top-10 ${!showHistory ? "z-0 h-10 bg-black overflow-hidden hidden" : " z-40  h-[300px] bg-[#f0efef]"} w-1/3 left-0  rounded-2xl p-6 animation-all duration-300 `}>
+         
+        {
+          history.map((item, index) => {
+                        
+            return (
+              <div
+              className="flex gap-3  items-center"
+              key={index}>
+                <p 
+                className="text-sm "
+                >{index % 2 == 0 ? "white" : "black"} -{`>`}</p>
+                <p>{item}</p>
+              </div>
+            );
+          })
+        }
+      </div>
+        </div>
       <div className={`flex 
         ${!isWhite ? "sm:flex-row-reverse" : "sm:flex-row"}
         ${!isWhite ? "flex-col-reverse" : "flex-col"} `}>
@@ -25,7 +67,7 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
       <p>{userId ? '' : "Cargando..."}</p>
 
       
-     {userId != "" && <div className="text-2xl text-center mt-4 py-2  bg-black text-white rounded-lg relative">
+      <div className="text-2xl text-center mt-4 py-2  bg-black text-white rounded-lg relative">
         <p>{userTurn == "white" ? "Piezas blancas" : "Piezas negras"}</p>
         <span className="h-3">
           {userTurn == turn ? "Tu turno" : "Turno del oponente"}
@@ -35,7 +77,7 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
          className="absolute top-4 sm:top-[30px] right-3 bg-blue-600 rounded-full">
           <p className="text-sm px-2">{showPiecesCount ? "Mostrar piezas" : "Ocultar piezas"}</p>
         </div>
-      </div>}
+      </div>
     </div>
   );
 };

@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { fichasBlack, fichasWhite, Piece } from "./data";
 import io from "socket.io-client";
+import movePieceFunct from "./movePieceFunct";
+import makePeonChange from "./makePeonChange";
 
-const socket =  io('192.168.12.158:3000')     // io("192.168.10.196:3000"); //
-
-
+const socket = io("192.168.12.158:3000"); // io("192.168.10.196:3000"); //
 
 interface IGameContext {
   piecesWhite: Piece[];
@@ -37,9 +37,28 @@ interface IGameContext {
   setResult: React.Dispatch<React.SetStateAction<string>>;
   showPiecesCount: boolean;
   setShowPiecesCount: React.Dispatch<React.SetStateAction<boolean>>;
+  history: string[]; 
+  setHistory?: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const gameContext = createContext<IGameContext>({} as IGameContext);
+const backupHistory: string[] = [];
+
+const saveToBackup = ({
+  newMove,
+  saveMove
+}:{
+  newMove: string
+  saveMove: React.Dispatch<React.SetStateAction<string[]>>;
+}) => {
+  if (!backupHistory.includes(newMove)) {
+    backupHistory.push(newMove);
+  saveMove(data => [...data, newMove]);
+
+  }
+  
+
+}
 
 export const GameContextProvider = ({ children }: any) => {
   const [piecesWhite, setPiecesWhite] = useState<Piece[]>(fichasWhite);
@@ -57,8 +76,9 @@ export const GameContextProvider = ({ children }: any) => {
   const [userId, setUserId] = useState<string>("");
 
   const [reyIsDeath, setReyIsDeath] = useState<boolean>(false);
-  const [result , setResult] = useState<string>("")
-  const [showPiecesCount , setShowPiecesCount] = useState<boolean>(false)
+  const [result, setResult] = useState<string>("");
+  const [showPiecesCount, setShowPiecesCount] = useState<boolean>(false);
+  const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -80,6 +100,8 @@ export const GameContextProvider = ({ children }: any) => {
         setTurn("black");
         setPiecesWhite(data.piecesWhite);
         setPiecesBlack(data.piecesBlack);
+        
+        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
       });
 
       socket.on("peonWhiteChange", (data) => {
@@ -88,12 +110,15 @@ export const GameContextProvider = ({ children }: any) => {
         setIsPeonInGoal(false);
         setPiecesWhite(data.piecesWhite);
         setPiecesBlack(data.piecesBlack);
+        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
       });
 
       socket.on("blackActualize", (data) => {
         setTurn("white");
         setPiecesWhite(data.piecesWhite);
         setPiecesBlack(data.piecesBlack);
+        
+        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
       });
 
       socket.on("peonBlackChange", (data) => {
@@ -102,105 +127,68 @@ export const GameContextProvider = ({ children }: any) => {
         setTurn("white");
         setPiecesWhite(data.piecesWhite);
         setPiecesBlack(data.piecesBlack);
+        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
+        
       });
 
       socket.on("userIsDisconected", () => {
         setShowAlert(true);
       });
     });
-     socket.on("blackWin", () => {
-       setShowAlert(true);
-       setReyIsDeath(true);
-       setResult('black wins')
-     })
+    socket.on("blackWin", () => {
+      setShowAlert(true);
+      setReyIsDeath(true);
+      setResult("black wins");
+    });
 
-     socket.on("whiteWin", () => {
-       setShowAlert(true);
-       setReyIsDeath(true);
-       setResult('white wins')
-     })
-    
-
-
+    socket.on("whiteWin", () => {
+      setShowAlert(true);
+      setReyIsDeath(true);
+      setResult("white wins");
+    });
   }, [squaresSelected, showAlert]);
 
   const moverToSquare = ({ newLocation }: { newLocation: string }) => {
     if (turn === "white" && userTurn === "white") {
-      const piece = piecesWhite.find((piece) => piece.idPiece === piecetomove);
-      const oldPiece = piecesWhite.filter((piece) => piece.idPiece !== piecetomove);
-
-      if (piece !== undefined) {
-        if (piecesWhite.map((piece) => piece.initialPlace).includes(newLocation)) {
-          return;
-        }
-
-        if (squaresSelected.includes(newLocation)) {
-          setTurn("black");
-          setSquaresSelected([]);
-          setPiecetomove("");
-
-          if (piece.ficha === "peon" && newLocation[1] === "8") {
-            setPiecetomove(piece.idPiece + "-" + piece.color + "-" + newLocation);
-            setIsPeonInGoal(true);
-            setShowAlert(true);
-          } else {
-            const findEnemy = piecesBlack.find((piece) => piece.initialPlace === newLocation);
-            if (findEnemy?.ficha == 'rey' ) {
-              socket.emit("whiteKillKing", 'Jugador white gano' )
-            }
-            setTimeout(() => {
-              socket.emit("whiteMoved", {
-                piecesWhite: [...oldPiece, { ...piece, initialPlace: newLocation }],
-                piecesBlack: findEnemy ? piecesBlack.filter((piece) => piece.idPiece !== findEnemy.idPiece) : piecesBlack,
-              });
-            }, 500);
-          }
-        } else {
-          setSquaresSelected([]);
-          setPiecetomove("");
-        }
-      }
+      movePieceFunct({
+        curretTurn: "white",
+        myPieces: piecesWhite,
+        piecetomove,
+        newLocation,
+        setPiecetomove,
+        setTurn,
+        setSquaresSelected,
+        squaresSelected,
+        setIsPeonInGoal,
+        setShowAlert,
+        socket,
+        enemyPieces: piecesBlack,
+        nextTurn: "black",
+        moveAlert: "whiteMoved",
+        moveToWin: "whiteKillKing",
+        golPeon: "8",
+      });
     }
 
     if (turn === "black" && userTurn === "black") {
-      const piece = piecesBlack.find((piece) => piece.idPiece === piecetomove);
-      const oldPiece = piecesBlack.filter((piece) => piece.idPiece !== piecetomove);
-
-      if (piece !== undefined) {
-        if (piecesBlack.map((piece) => piece.initialPlace).includes(newLocation)) {
-          return;
-        }
-
-        if (squaresSelected.includes(newLocation)) {
-          setPiecesBlack([...oldPiece, { ...piece, initialPlace: newLocation }]);
-          setTurn("white");
-          setSquaresSelected([]);
-          setPiecetomove("");
-
-          const findEnemy = piecesWhite.find((piece) => piece.initialPlace === newLocation);
-
-          if (findEnemy?.ficha == 'rey' ) {
-            socket.emit("blackKillKing", 'Jugador Negro gano' )
-
-          }
-
-          if (piece.ficha === "peon" && newLocation[1] === "1") {
-            setPiecetomove(piece.idPiece + "-" + piece.color + "-" + newLocation);
-            setIsPeonInGoal(true);
-            setShowAlert(true);
-          } else {
-            setTimeout(() => {
-              socket.emit("blackMoved", {
-                piecesWhite: findEnemy ? piecesWhite.filter((piece) => piece.idPiece !== findEnemy.idPiece) : piecesWhite,
-                piecesBlack: [...oldPiece, { ...piece, initialPlace: newLocation }],
-              });
-            }, 500);
-          }
-        } else {
-          setSquaresSelected([]);
-          setPiecetomove("");
-        }
-      }
+      movePieceFunct({
+        curretTurn: "black",
+        myPieces: piecesBlack,
+        piecetomove,
+        newLocation,
+        setPiecetomove,
+        setTurn,
+        setSquaresSelected,
+        squaresSelected,
+        setIsPeonInGoal,
+        setShowAlert,
+        socket,
+        enemyPieces: piecesWhite,
+        nextTurn: "white",
+        moveAlert: "blackMoved",
+        moveToWin: "blackKillKing",
+        golPeon: "1",
+      });
     }
   };
 
@@ -208,27 +196,29 @@ export const GameContextProvider = ({ children }: any) => {
     const details = piecetomove.split("-");
 
     if (details[1] === "white") {
-      const pieceToSchante = piecesWhite.find((piece) => piece.idPiece === details[0]);
-      const oldPiece = piecesWhite.filter((piece) => piece.idPiece !== details[0]);
-      if (pieceToSchante !== undefined) {
-        setPiecesWhite([...oldPiece, { ...pieceToSchante, ficha: change, initialPlace: details[2] }]);
-        const findEnemy = piecesBlack.find((piece) => piece.initialPlace === details[2]);
-        socket.emit("peonWhiteInGoal", {
-          piecesWhite: [...oldPiece, { ...pieceToSchante, ficha: change, initialPlace: details[2] }],
-          piecesBlack: findEnemy ? piecesBlack.filter((piece) => piece.idPiece !== findEnemy.idPiece) : piecesBlack,
-        });
-      }
+      makePeonChange({
+        currentTurn: "white",
+        change,
+        details,
+        myPieces: piecesWhite,
+        setMyOwnPieces: setPiecesWhite,
+        enemyPieces: piecesBlack,
+        socket,
+        messageGoal : 'peonWhiteInGoal',
+      });
+      
     } else if (details[1] === "black") {
-      const pieceToSchante = piecesBlack.find((piece) => piece.idPiece === details[0]);
-      const oldPiece = piecesBlack.filter((piece) => piece.idPiece !== details[0]);
-      if (pieceToSchante !== undefined) {
-        setPiecesBlack([...oldPiece, { ...pieceToSchante, ficha: change, initialPlace: details[2] }]);
-        const findEnemy = piecesWhite.find((piece) => piece.initialPlace === details[2]);
-        socket.emit("peonBlackInGoal", {
-          piecesBlack: [...oldPiece, { ...pieceToSchante, ficha: change, initialPlace: details[2] }],
-          piecesWhite: findEnemy ? piecesWhite.filter((piece) => piece.idPiece !== findEnemy.idPiece) : piecesWhite,
-        });
-      }
+      makePeonChange({
+        currentTurn: "black",
+        change,
+        details,
+        myPieces: piecesBlack,
+        setMyOwnPieces: setPiecesBlack,
+        enemyPieces: piecesWhite,
+        socket,
+        messageGoal : 'peonBlackInGoal',
+      });
+    
     }
   };
 
@@ -257,18 +247,16 @@ export const GameContextProvider = ({ children }: any) => {
     setUserId,
     moverToSquare,
     changePeonInGoal,
-    reyIsDeath, setReyIsDeath,
+    reyIsDeath,
+    setReyIsDeath,
     result,
     setResult,
-    showPiecesCount , setShowPiecesCount
-
+    showPiecesCount,
+    setShowPiecesCount,
+    history
   };
 
-  return (
-    <gameContext.Provider value={values}>
-      {children}
-    </gameContext.Provider>
-  );
+  return <gameContext.Provider value={values}>{children}</gameContext.Provider>;
 };
 
 const useGameContext = () => useContext(gameContext);
