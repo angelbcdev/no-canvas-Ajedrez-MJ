@@ -2,6 +2,7 @@
 
 import { Socket  } from "socket.io-client";
 import { Piece } from "./data";
+import { cols, movePieceAlfil, movePieceCaballo, movePieceKing, movePiecePeon, movePieceReina, movePieceTorre } from "./movePieces";
 
 export const piecesToUci: Record< string , string> = {
   peon: "p",
@@ -29,7 +30,10 @@ const movePieceFunct = ({
   nextTurn,
   moveAlert,
   moveToWin,
-  golPeon
+  golPeon,
+  setKingIsHake,
+  needMoveKing,
+  setNeedMoveKing,
 }:{
   curretTurn: 'white' | 'black'
   myPieces: Piece[],
@@ -47,21 +51,41 @@ const movePieceFunct = ({
   moveToWin:'whiteKillKing' | 'blackKillKing'
   golPeon:'8' | '1'
   socket:  Socket<any, any>
+  kingIsHake:string[]
+  setKingIsHake:React.Dispatch<React.SetStateAction<string[]>>
+  needMoveKing: boolean
+  setNeedMoveKing: React.Dispatch<React.SetStateAction<boolean>>
 })=>{
 
   
-    const piece = myPieces.find((piece) => piece.idPiece === piecetomove);
-    const oldPiece = myPieces.filter((piece) => piece.idPiece !== piecetomove);
+  const piece = myPieces.find((piece) => piece.idPiece === piecetomove);
+  const oldPiece = myPieces.filter((piece) => piece.idPiece !== piecetomove);
+
+
+  const piecesAlyWhite = myPieces.map((piece) => piece.initialPlace);
+  const piecesAlyBlack = enemyPieces.map((piece) => piece.initialPlace);
+  const allPiecesToogether = [...piecesAlyWhite, ...piecesAlyBlack];
+  
+  if (needMoveKing && piece?.ficha === "rey"){ 
+    setNeedMoveKing(false)
+    socket.emit("kingIsSafe", false)
+  }
+ 
 
     if (piece !== undefined) {
       if (myPieces.map((piece) => piece.initialPlace).includes(newLocation)) {
         return;
       }
+      
+      
 
       if (squaresSelected.includes(newLocation)) {
         setTurn(nextTurn);
         setSquaresSelected([]);
         setPiecetomove("");
+       
+        
+
 
         if (piece.ficha === "peon" && newLocation[1] === golPeon) {
           setPiecetomove(piece.idPiece + "-" + piece.color + "-" + newLocation);
@@ -82,9 +106,70 @@ const movePieceFunct = ({
           const transFormToUCI = `${ isPeonUCI ?'' : `${piecesToUci[piece!.ficha] &&  piecesToUci[piece!.ficha].toUpperCase()}`}  ${isKill}${ newLocation}`
           const uciMove = transFormToUCI.replace(/ /g, "")
 
-          
+          //search for the Hake
+          const currentLocation = {
+            row: newLocation[0] as string,
+            col: Number(newLocation[1]),
+          };
+          const currentRowIndex = cols.indexOf(currentLocation.row);
+
+          if (piece.ficha === 'reina') {
+            
+            movePieceReina({
+              currentLocation,
+                currentRowIndex,
+                youCanMove:setKingIsHake,
+                ocupedSpot: allPiecesToogether,
+                piece
+            })
+          }
+          if (piece.ficha === 'rey') {
+            movePieceKing({
+              currentLocation,
+                currentRowIndex,
+                youCanMove:setKingIsHake,
+                piece
+            })
+          }
+          if (piece.ficha === 'alfil') {
+            movePieceAlfil({
+              piece,
+              currentLocation,
+                currentRowIndex,
+                youCanMove:setKingIsHake,
+                ocupedSpot: allPiecesToogether
+            })
+          }
+          if (piece.ficha === 'torre') {
+            movePieceTorre({
+              currentLocation,
+                currentRowIndex,
+                youCanMove:setKingIsHake,
+                ocupedSpot: allPiecesToogether
+            })
+          }
+          if (piece.ficha === 'caballo') {
+            movePieceCaballo({
+              currentLocation,
+                currentRowIndex,
+                youCanMove:setKingIsHake,
+                piece
+            })
+          }
+          if (piece.ficha === 'peon') {
+            movePiecePeon({
+              piece,
+                currentLocation,
+                youCanMove:setKingIsHake,
+                enemyPieces,
+                currentRowIndex
+            })
+          }
+         
           
           setTimeout(() => {
+            
+         
             socket.emit(moveAlert, {
               [curretTurn === 'white' ? 'piecesWhite' : 'piecesBlack']: [...oldPiece, { ...piece, initialPlace: newLocation }],
               [curretTurn === 'white' ? 'piecesBlack' : 'piecesWhite']: findEnemy ? enemyPieces.filter((piece) => piece.idPiece !== findEnemy.idPiece) : enemyPieces,

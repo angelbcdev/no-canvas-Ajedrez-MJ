@@ -15,6 +15,8 @@ const Board = () => {
     piecesBlack,
     piecesWhite,
     userTurn,
+    needMoveKing, 
+    
   } = useGameContext();
 
   const piecesAlyWhite = piecesWhite.map((piece) => piece.initialPlace);
@@ -48,7 +50,18 @@ const Board = () => {
                 onClick={() => {
                   if (userTurn == turn) {
 
-                    if (piece !== undefined) setPiecetomove(piece?.idPiece);
+                  
+                     if(needMoveKing && piece?.ficha !== "rey"){ 
+                      return
+                    }
+
+                    
+
+                    if (piece !== undefined ) setPiecetomove(piece?.idPiece);
+                      
+                    
+                      
+
                     moverToSquare({ newLocation: location });
                     const currentLocation = {
                       row: piece?.initialPlace[0] as string,
@@ -75,6 +88,7 @@ const Board = () => {
                           piece,
                         });
                       } else if (piece?.ficha === "rey") {
+                        
                         movePieceKing({
                           currentLocation,
                           currentRowIndex,
@@ -89,8 +103,6 @@ const Board = () => {
                           ocupedSpot: allPiecesToogether,
                         });
                       } else if (piece?.ficha === "alfil") {
-                        console.log("piece?.ficha", piece?.ficha);
-
                         movePieceAlfil({
                           piece,
                           currentLocation,
@@ -107,9 +119,11 @@ const Board = () => {
                           ocupedSpot: allPiecesToogether,
                         });
                       }
-
+                    
 
                     }
+
+                    
                   }
                 }}
                 key={generateRandomString(5)}

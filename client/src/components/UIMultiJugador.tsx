@@ -35,7 +35,7 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
           <p className=" absolute bottom-4 left-4 z-30 text-center  bg-black text-white rounded-lg ">{showHistory ? "Hide History" : "Show History"}</p>
          <div 
          ref={scrollContainerRef}
-         className={` overflow-scroll absolute  top-10 ${!showHistory ? "z-0 h-10 bg-black overflow-hidden hidden" : " z-40  h-[300px] bg-[#f0efef]"} w-1/3 left-0  rounded-2xl p-6 animation-all duration-300 `}>
+         className={` overflow-scroll absolute  top-10 ${!showHistory ? "z-0 h-10 bg-black overflow-hidden hidden" : " z-40  h-[300px] bg-[#f0efef]"} flex flex-col gap-3 w-[160px] left-0  rounded-2xl p-6 animation-all duration-300 `}>
          
         {
           history.map((item, index) => {

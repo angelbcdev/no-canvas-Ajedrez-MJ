@@ -10,7 +10,7 @@ const SearchPiece = ({
   location: string;
   color: "white" | "black";
 }) => {
-  const { turn, piecetomove, userTurn, squaresSelected } = useGameContext();
+  const { turn, piecetomove, userTurn, squaresSelected ,needMoveKing } = useGameContext();
   const piece = pieces.find((piece) => piece.initialPlace === location);
 
   const isYourTurn = turn === color;
@@ -27,6 +27,7 @@ const SearchPiece = ({
       // onClick={() => (isYourTurn && piecetomove == '') && }
 
       className={` z-50 w-[54px] h-[54px] sm:w-16 sm:h-16 absolute 
+        ${needMoveKing && piece?.ficha === "rey" && turn === piece.color ? "animate-pulse" : ""}
     ${imEnemy && turn !== piece.color ? "bg-red-500" : ""}
     ${
       userTurn == color

@@ -200,58 +200,7 @@ export const movePieceTorre = ({
   youCanMove(allMoveAvailable);
 };
 
-export const movePieceAlfil2 = ({
-  currentLocation,
-  currentRowIndex,
-  youCanMove,
-  ocupedSpot,
-}: {
-  currentRowIndex: number;
-  currentLocation: { row: string; col: number };
-  youCanMove: React.Dispatch<React.SetStateAction<string[]>>;
-  ocupedSpot: string[];
-}) => {
-  const allMoveAvailable = [];
-  for (let i = currentLocation.col - 1; i > 0; i--) {
-    //vertical Up
-    const createdLocation = currentLocation.row + i;
-    allMoveAvailable.push(createdLocation);
 
-    if (ocupedSpot.includes(createdLocation)) {
-      break; // Termina el bucle si se encuentra una ubicación ocupada
-    }
-  }
-  for (let i = currentLocation.col + 1; i < 9; i++) {
-    //vertical  down
-
-    const createdLocation = currentLocation.row + i;
-    allMoveAvailable.push(createdLocation);
-
-    if (ocupedSpot.includes(createdLocation)) {
-      break; // Termina el bucle si se encuentra una ubicación ocupada
-    }
-  }
-
-  for (let i = currentRowIndex + 1; i < 8; i++) {
-    // horizontal right
-    const createdLocation = cols[i] + currentLocation.col;
-    allMoveAvailable.push(createdLocation);
-    if (ocupedSpot.includes(createdLocation)) {
-      break; // Termina el bucle si se encuentra una ubicación ocupada
-    }
-  }
-
-  for (let i = currentRowIndex - 1; i > -1; i--) {
-    // horizontal left
-    const createdLocation = cols[i] + currentLocation.col;
-    allMoveAvailable.push(createdLocation);
-    if (ocupedSpot.includes(createdLocation)) {
-      break; // Termina el bucle si se encuentra una ubicación ocupada
-    }
-  }
-
-  youCanMove(allMoveAvailable);
-};
 export const movePieceAlfil = ({
   currentRowIndex,
   currentLocation,
@@ -489,5 +438,8 @@ export const movePieceReina = ({
   }
 
   youCanMove(allMoveAvailable);
+
+  
+  
 };
 
