@@ -1,10 +1,11 @@
 import useGameContext from "../porvider/context";
 import ChangePeonWindow from "./nodals/ChangePeonWindow";
+import HakeMAteWindos from "./nodals/HakeMAteWindos";
 import WaitForUserWindow from "./nodals/WaitForUserWindow";
 
 const CoverBoard = () => {
 
-  const {showAlert, setShowAlert , isPeonInGoal ,waitForUser} = useGameContext()
+  const {showAlert, setShowAlert , isPeonInGoal ,waitForUser ,reyIsDeath} = useGameContext()
 
 
   return (
@@ -24,6 +25,7 @@ const CoverBoard = () => {
         <div className=" w-[250px] h-[250px] relative z-50 bottom-36">
          {isPeonInGoal && <ChangePeonWindow />}
          {waitForUser && <WaitForUserWindow />}
+         {reyIsDeath && <HakeMAteWindos />}
         </div>
         </section>)}
     </>
