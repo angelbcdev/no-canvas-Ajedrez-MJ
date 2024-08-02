@@ -2,39 +2,43 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const path = require("path");
+require('dotenv').config({ path: '../.env' });
+const apiUrl = process.env.API_URL;
 
-const myUrl = '192.168.1.153'
+
+const myUrl = apiUrl
 const distPath = path.join(__dirname, '..', 'client', 'dist');
 const { Server } = require("socket.io");
 const server = http.createServer(app);
 const io = new Server(server , { cors: { origin: "*" } });
 app.use(express.static(distPath));
 
+
+
+
+
+
 let allPlayers = []
-let index = 0
+
 
 io.on("connection", (socket) => {
   socket.once("find", (data) => {
-    const savedPlayer = allPlayers.find(p => p.id == data.id)
-
-    console.log('data',data);
-
     
-    if (!savedPlayer && allPlayers.length < 2) {
       allPlayers.push({
         id: socket.id,
       })
 
-      index++
+      
      
       
-    }
+    // }
     socket.emit('waitForPlayer',allPlayers)
 
     
-    if (allPlayers.length == 2){
+    
+    
       io.emit('userRegister',allPlayers)
-    }
+   
 
     
   })
@@ -56,6 +60,17 @@ io.on("connection", (socket) => {
   })
   socket.on('peonBlackInGoal', (data) => {
     io.emit('peonBlackChange', data)
+  })
+
+  socket.on('changeAlert', (data) => {
+    io.emit('turnAlert', data)
+  })
+  socket.on('blackKillKing', (data) => {
+    io.emit('blackWin', data)
+  })
+
+  socket.on('whiteKillKing', (data) => {
+    io.emit('whiteWin', data)
   })
 
 

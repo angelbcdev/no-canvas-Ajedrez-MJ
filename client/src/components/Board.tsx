@@ -29,7 +29,7 @@ const Board = () => {
         <div key={generateRandomString(3)} className="flex">
           {cols.map((col, squareIndex) => {
             const direction =
-              userTurn === "white" ? 8 - rowIndex : rowIndex + 1;
+              userTurn === "black" ? rowIndex + 1 : 8  - rowIndex ;
 
             const location = `${col}${direction}`;
             const piece = [...piecesWhite, ...piecesBlack].find(

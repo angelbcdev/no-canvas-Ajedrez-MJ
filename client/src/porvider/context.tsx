@@ -5,7 +5,14 @@ import movePieceFunct from "./movePieceFunct";
 import makePeonChange from "./makePeonChange";
 import showKinIsHake from "./showKinIsHake";
 
-const socket = io("192.168.12.158:3000"); // io("192.168.10.196:3000"); //
+
+
+
+const socket = io('https://multjugador-jedrez.onrender.com/'); // io("192.168.10.196:3000"); // "192.168.12.158:3000"  https://multjugador-jedrez.onrender.com/
+
+
+
+
 
 interface IGameContext {
   piecesWhite: Piece[];
@@ -44,6 +51,13 @@ interface IGameContext {
   setKingIsHake: React.Dispatch<React.SetStateAction<string[]>>;
   needMoveKing: boolean;
   setNeedMoveKing: React.Dispatch<React.SetStateAction<boolean>>;
+  views: number;
+  niceAlert: boolean;
+  changeNiceAlert: ()=>void;
+  greatAlert: boolean;
+  changeGreatAlert: ()=>void;
+  goodAlert: boolean;
+  changeGoodAlert: ()=>void;
 }
 
 const gameContext = createContext<IGameContext>({} as IGameContext);
@@ -87,6 +101,56 @@ export const GameContextProvider = ({ children }: any) => {
 
   const [needMoveKing, setNeedMoveKing] = useState<boolean>(false);
   const [kingIsHake, setKingIsHake] = useState<string[]>([]);
+  const [views, setViews] = useState<number>(0);
+  const [niceAlert, setNiceAlert] = useState<boolean>(false);
+  const [greatAlert, setGreatAlert] = useState<boolean>(false);
+  const [goodAlert, setGoodAlert] = useState<boolean>(false);
+
+
+
+  // useEffect(() => {
+  //   if (piecesWhite.find((piece) => piece.ficha === "rey")) {
+      
+  //   }
+  //   if (piecesBlack.find((piece) => piece.ficha === "rey")) {
+     
+  //   }
+
+  // }, [piecesWhite , piecesBlack]);
+
+  const changeNiceAlert = () => {
+    socket.emit("changeAlert", "nice");
+   
+  }
+  const activeNiceAlert = () => {
+    setNiceAlert(true);
+    setTimeout(() => {
+      setNiceAlert(false);
+    }, 3000);
+  }
+
+  const changeGreatAlert = () => {
+    socket.emit("changeAlert", "great");
+  
+  }
+
+  const activeGreatAlert = () => {
+    setGreatAlert(true);
+    setTimeout(() => {
+      setGreatAlert(false);
+    }, 3000);
+  }
+  const changeGoodAlert = () => {
+    socket.emit("changeAlert", "good");
+
+  }
+
+  const activeGoodAlert = () => {
+    setGoodAlert(true);
+    setTimeout(() => {
+      setGoodAlert(false);
+    }, 3000);
+  }
 
   useEffect(() => {
   
@@ -124,11 +188,33 @@ export const GameContextProvider = ({ children }: any) => {
         setWaitForUser(true);
       });
 
-      socket.on("userRegister", (data) => {
-        setUserTurn(data[0].id === socket.id ? "white" : "black");
+      socket.on("userRegister", (data: any) => {
+   
+        const myIndex = data.findIndex((p: any) => p.id === socket.id);
+        
+        
+        if (myIndex !== -1) {
+          switch (myIndex) {
+            case 0:
+              setUserTurn("white");
+              break;
+            case 1:
+              setUserTurn("black");
+              break;
+          
+            default:
+              setUserTurn("espectador");
+              setViews(data.length );
+              break;
+          }
+          
+        }
+          
+        
+        
       });
 
-      socket.on("whiteActualize", (data) => {
+      socket.on("whiteActualize", (data: any) => {
         setTurn("black");
         setPiecesWhite(data.piecesWhite);
         setPiecesBlack(data.piecesBlack);
@@ -136,7 +222,7 @@ export const GameContextProvider = ({ children }: any) => {
         saveToBackup({newMove: data.uciMove, saveMove: setHistory})
       });
 
-      socket.on("peonWhiteChange", (data) => {
+      socket.on("peonWhiteChange", (data: any) => {
         setTurn("black");
         setShowAlert(false);
         setIsPeonInGoal(false);
@@ -145,7 +231,7 @@ export const GameContextProvider = ({ children }: any) => {
         saveToBackup({newMove: data.uciMove, saveMove: setHistory})
       });
 
-      socket.on("blackActualize", (data) => {
+      socket.on("blackActualize", (data: any) => {
         setTurn("white");
         setPiecesWhite(data.piecesWhite);
         setPiecesBlack(data.piecesBlack);
@@ -153,7 +239,7 @@ export const GameContextProvider = ({ children }: any) => {
         saveToBackup({newMove: data.uciMove, saveMove: setHistory})
       });
 
-      socket.on("peonBlackChange", (data) => {
+      socket.on("peonBlackChange", (data: any) => {
         setShowAlert(false);
         setIsPeonInGoal(false);
         setTurn("white");
@@ -179,7 +265,7 @@ export const GameContextProvider = ({ children }: any) => {
       setResult("white wins");
     });
 
-    socket.on("showKinIsHake", (data) => {
+    socket.on("showKinIsHake", (data: any) => {
       setNeedMoveKing(true);
       setPiecetomove(data);
     })
@@ -187,6 +273,24 @@ export const GameContextProvider = ({ children }: any) => {
     socket.on("kingIsSafeAndMoved", () => {
       setNeedMoveKing(false);
     })
+
+    socket.on("turnAlert", (data: "nice" | "great" | "good") => {
+
+      switch (data) {
+        case "nice":
+          activeNiceAlert();
+          break;
+        case "great":
+          activeGreatAlert();
+          break;
+        case "good":
+          activeGoodAlert();
+          break;
+        default:
+          break;
+      }
+
+    });
   }, [squaresSelected, showAlert]);
 
   const moverToSquare = ({ newLocation }: { newLocation: string }) => {
@@ -215,7 +319,7 @@ export const GameContextProvider = ({ children }: any) => {
         setKingIsHake,
         kingIsHake,
         needMoveKing,
-  setNeedMoveKing,
+        setNeedMoveKing,
       });
     }
 
@@ -314,7 +418,14 @@ export const GameContextProvider = ({ children }: any) => {
     setShowPiecesCount,
     history,
     kingIsHake, setKingIsHake,
-    needMoveKing, setNeedMoveKing
+    needMoveKing, setNeedMoveKing,views,
+    niceAlert,
+    changeNiceAlert ,
+    greatAlert, changeGreatAlert,
+    changeGoodAlert,
+    goodAlert,
+        
+    
   };
 
   return <gameContext.Provider value={values}>{children}</gameContext.Provider>;

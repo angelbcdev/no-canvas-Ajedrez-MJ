@@ -46,7 +46,7 @@ export const fichasBlack: Piece[] =
   { ficha: "peon", initialPlace: "c7", idPiece: "DUPCkshs",color:"black" },
   { ficha: "peon", initialPlace: "d7", idPiece: "8hxS60KK",color:"black" },
   { ficha: "peon", initialPlace: "e7", idPiece: "0hL8OfYW",color:"black" },
-  // { ficha: "peon", initialPlace: "f7", idPiece: "fwnA9gIK",color:"black" },
+  { ficha: "peon", initialPlace: "f7", idPiece: "fwnA9gIK",color:"black" },
   { ficha: "peon", initialPlace: "g7", idPiece: "g27NM3Lz",color:"black" },
   { ficha: "peon", initialPlace: "h7", idPiece: "YiEn5Z1f",color:"black" },
   { ficha: "torre", initialPlace: "a8", idPiece: "yUG5v23e",color:"black" },
