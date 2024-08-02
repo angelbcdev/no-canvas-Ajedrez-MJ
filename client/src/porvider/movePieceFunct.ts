@@ -34,6 +34,11 @@ const movePieceFunct = ({
   setKingIsHake,
   needMoveKing,
   setNeedMoveKing,
+  isMultiJugador,
+  setOwnerPieces,
+setEnemyPieces,
+
+    setUserTurn,
 }:{
   curretTurn: 'white' | 'black'
   myPieces: Piece[],
@@ -55,6 +60,11 @@ const movePieceFunct = ({
   setKingIsHake:React.Dispatch<React.SetStateAction<string[]>>
   needMoveKing: boolean
   setNeedMoveKing: React.Dispatch<React.SetStateAction<boolean>>
+  isMultiJugador: boolean
+  setOwnerPieces: React.Dispatch<React.SetStateAction<Piece[]>>
+setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
+
+    setUserTurn: React.Dispatch<React.SetStateAction<string>>
 })=>{
 
   
@@ -81,6 +91,7 @@ const movePieceFunct = ({
 
       if (squaresSelected.includes(newLocation)) {
         setTurn(nextTurn);
+        
         setSquaresSelected([]);
         setPiecetomove("");
        
@@ -168,13 +179,24 @@ const movePieceFunct = ({
          
           
           setTimeout(() => {
-            
+            const playerPiecesUpdate = [...oldPiece, { ...piece, initialPlace: newLocation }]
+            const enemyPiecesUpdate =  findEnemy ? enemyPieces.filter((piece) => piece.idPiece !== findEnemy.idPiece) : enemyPieces
+            if (isMultiJugador) {
+              socket.emit(moveAlert, {
+                [curretTurn === 'white' ? 'piecesWhite' : 'piecesBlack']: playerPiecesUpdate,
+                [curretTurn === 'white' ? 'piecesBlack' : 'piecesWhite']: enemyPiecesUpdate,
+                uciMove
+              });
+            }else{
+             
+              
+              setOwnerPieces(playerPiecesUpdate)
+              setEnemyPieces(enemyPiecesUpdate)
+              setUserTurn(nextTurn)
+              
+            }
          
-            socket.emit(moveAlert, {
-              [curretTurn === 'white' ? 'piecesWhite' : 'piecesBlack']: [...oldPiece, { ...piece, initialPlace: newLocation }],
-              [curretTurn === 'white' ? 'piecesBlack' : 'piecesWhite']: findEnemy ? enemyPieces.filter((piece) => piece.idPiece !== findEnemy.idPiece) : enemyPieces,
-              uciMove
-            });
+           
           }, 500);
         }
       } else {

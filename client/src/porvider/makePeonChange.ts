@@ -11,10 +11,18 @@ const makePeonChange =({
   setMyOwnPieces,
   enemyPieces,
   socket,
-  messageGoal
+  messageGoal,
+  isMultiJugador,
+  setOwnerPieces,
+  setEnemyPieces,
+  nextTurn,
+  setUserTurn,
+  setIsPeonInGoal,
+  setShowAlert,
 }:
 {
   currentTurn: 'white' | 'black'
+  nextTurn: 'white' | 'black'
   change: string
   details: string[]
   myPieces: Piece[]
@@ -22,6 +30,12 @@ const makePeonChange =({
   setMyOwnPieces: React.Dispatch<React.SetStateAction<Piece[]>>
   socket:  Socket<any, any>
   messageGoal: 'peonWhiteInGoal' | 'peonBlackInGoal'
+  setOwnerPieces: React.Dispatch<React.SetStateAction<Piece[]>>
+  setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
+  isMultiJugador: boolean
+      setUserTurn: React.Dispatch<React.SetStateAction<string>>
+      setIsPeonInGoal: React.Dispatch<React.SetStateAction<boolean>>
+      setShowAlert: React.Dispatch<React.SetStateAction<boolean>>
 })=>{
 
   const pieceToSchante = myPieces.find(
@@ -52,21 +66,33 @@ const makePeonChange =({
 
 
 
+    const playerPiecesUpdate = [
+      ...oldPiece,
+      { ...pieceToSchante, ficha: change, initialPlace: details[2] },
+    ]
+    const enemyPiecesUpdate = findEnemy
+    ? enemyPieces.filter((piece) => piece.idPiece !== findEnemy.idPiece)
+    : enemyPieces
+            
 
 
-
-
+    if (isMultiJugador) {
 
     socket.emit(messageGoal, {
-      [currentTurn === "white" ? "piecesWhite" : "piecesBlack"]: [
-        ...oldPiece,
-        { ...pieceToSchante, ficha: change, initialPlace: details[2] },
-      ],
-      [currentTurn === "white" ? "piecesBlack" : "piecesWhite"]: findEnemy
-        ? enemyPieces.filter((piece) => piece.idPiece !== findEnemy.idPiece)
-        : enemyPieces,
+      [currentTurn === "white" ? "piecesWhite" : "piecesBlack"]: playerPiecesUpdate,
+      [currentTurn === "white" ? "piecesBlack" : "piecesWhite"]: enemyPiecesUpdate,
         uciMove
     });
+  } else{
+
+    setOwnerPieces(playerPiecesUpdate)
+    setEnemyPieces(enemyPiecesUpdate)
+    setUserTurn(nextTurn)
+    setIsPeonInGoal(false)
+    setShowAlert(false)
+    console.log('updete move');
+  }
+
   }
 };
 

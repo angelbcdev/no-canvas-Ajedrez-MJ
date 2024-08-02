@@ -5,7 +5,7 @@ import WaitForUserWindow from "./nodals/WaitForUserWindow";
 
 const CoverBoard = () => {
 
-  const {showAlert, setShowAlert , isPeonInGoal ,waitForUser ,reyIsDeath} = useGameContext()
+  const {showAlert,   isPeonInGoal ,waitForUser ,reyIsDeath ,playerSurrender} = useGameContext()
 
 
   return (
@@ -17,7 +17,7 @@ const CoverBoard = () => {
         <div
         
         
-        onClick={() => setShowAlert(false)}
+        
         className="fixed z-10 w-full h-full flex justify-center items-center  bg-black/40"
        
          >
@@ -25,7 +25,8 @@ const CoverBoard = () => {
         <div className=" w-[250px] h-[250px] relative z-50 bottom-36">
          {isPeonInGoal && <ChangePeonWindow />}
          {waitForUser && <WaitForUserWindow />}
-         {reyIsDeath && <HakeMAteWindos />}
+         {reyIsDeath && <HakeMAteWindos title="Hake Mate" />}
+         {playerSurrender && <HakeMAteWindos title="player Surrender" />}
         </div>
         </section>)}
     </>

@@ -8,7 +8,7 @@ import showKinIsHake from "./showKinIsHake";
 
 
 
-const socket = io('https://multjugador-jedrez.onrender.com/'); // https://multjugador-jedrez.onrender.com/
+const socket = io('localhost:3000'); // https://multjugador-jedrez.onrender.com/
 
 
 
@@ -58,7 +58,13 @@ interface IGameContext {
   changeGreatAlert: ()=>void;
   goodAlert: boolean;
   changeGoodAlert: ()=>void;
-}
+  isMultiJugador: boolean;
+  setIsMultiJugador: React.Dispatch<React.SetStateAction<boolean>>;
+  makeSetupMultiJugador:()=>void 
+  playerSurrender: boolean;
+    
+  }
+
 
 const gameContext = createContext<IGameContext>({} as IGameContext);
 const backupHistory: string[] = [];
@@ -87,7 +93,7 @@ export const GameContextProvider = ({ children }: any) => {
   const [squaresSelected, setSquaresSelected] = useState<string[]>([]);
 
   const [showAlert, setShowAlert] = useState<boolean>(true);
-  const [waitForUser, setWaitForUser] = useState<boolean>(false);
+  const [waitForUser, setWaitForUser] = useState<boolean>(true);
   const [isPeonInGoal, setIsPeonInGoal] = useState<boolean>(false);
   const [multiJugador, setMultiJugador] = useState<boolean>(true);
   const [turn, setTurn] = useState<string>("white");
@@ -106,17 +112,11 @@ export const GameContextProvider = ({ children }: any) => {
   const [greatAlert, setGreatAlert] = useState<boolean>(false);
   const [goodAlert, setGoodAlert] = useState<boolean>(false);
 
+  const [isMultiJugador, setIsMultiJugador] = useState<boolean>(false);
+  const [playerSurrender, setPlayerSurrender] = useState<boolean>(false);
 
 
-  // useEffect(() => {
-  //   if (piecesWhite.find((piece) => piece.ficha === "rey")) {
-      
-  //   }
-  //   if (piecesBlack.find((piece) => piece.ficha === "rey")) {
-     
-  //   }
 
-  // }, [piecesWhite , piecesBlack]);
 
   const changeNiceAlert = () => {
     socket.emit("changeAlert", "nice");
@@ -152,46 +152,27 @@ export const GameContextProvider = ({ children }: any) => {
     }, 3000);
   }
 
-  useEffect(() => {
-  
 
-    if (turn === "black") { //search for king in black pieces
-      showKinIsHake({ 
-        enemyPieces: piecesBlack,
-        kingIsHake,
-        setPiecetomove,
-        socket});
-
-    }
-    if (turn === "white") { //search for king in white pieces
-      showKinIsHake({ 
-        enemyPieces: piecesWhite,
-        kingIsHake,
-        setPiecetomove,
-        socket});
-    }
-    
-
-    
-    
-  }, [kingIsHake]);
-
-  useEffect(() => {
-    socket.on("connect", () => {
+  const makeSetupMultiJugador = () => {
+   
+      
       setUserId(socket.id || "");
       socket.emit("find", {
         id: socket.id,
-      });
+      // });
 
-      socket.on("waitForPlayer", () => {
-        setShowAlert(true);
-        setWaitForUser(true);
-      });
+    });
+  }
+
+
+  if (isMultiJugador){
+   
 
       socket.on("userRegister", (data: any) => {
-   
-        const myIndex = data.findIndex((p: any) => p.id === socket.id);
         
+        const myIndex = data.findIndex((p: any) => p.id === socket.id);
+        setShowAlert(false);
+        setWaitForUser(false);
         
         if (myIndex !== -1) {
           switch (myIndex) {
@@ -209,9 +190,6 @@ export const GameContextProvider = ({ children }: any) => {
           }
           
         }
-          
-        
-        
       });
 
       socket.on("whiteActualize", (data: any) => {
@@ -249,10 +227,19 @@ export const GameContextProvider = ({ children }: any) => {
         
       });
 
-      socket.on("userIsDisconected", () => {
-        setShowAlert(true);
+      socket.on("userIsDisconected", (mainPlayerOff: boolean) => {
+        if (mainPlayerOff) {
+          setShowAlert(true);
+          setPlayerSurrender(true);
+
+          setPiecesWhite(fichasWhite)
+          setPiecesBlack(fichasBlack)
+
+        }
       });
-    });
+      
+ 
+
     socket.on("blackWin", () => {
       setShowAlert(true);
       setReyIsDeath(true);
@@ -291,7 +278,51 @@ export const GameContextProvider = ({ children }: any) => {
       }
 
     });
-  }, [squaresSelected, showAlert]);
+
+
+  }
+
+
+  useEffect(() => {
+  
+
+    if (turn === "black") { //search for king in black pieces
+      showKinIsHake({ 
+        enemyPieces: piecesBlack,
+        kingIsHake,
+        setPiecetomove,
+        socket});
+
+    }
+    if (turn === "white") { //search for king in white pieces
+      showKinIsHake({ 
+        enemyPieces: piecesWhite,
+        kingIsHake,
+        setPiecetomove,
+        socket});
+    }
+    
+
+    
+    
+  }, [kingIsHake]);
+
+  useEffect(() => {
+   
+
+    if (!isMultiJugador) {
+      setUserTurn("white");
+      console.log('player alone');
+      
+    }
+   
+
+    
+
+
+  }, []);
+  
+ 
 
   const moverToSquare = ({ newLocation }: { newLocation: string }) => {
     
@@ -320,9 +351,15 @@ export const GameContextProvider = ({ children }: any) => {
         kingIsHake,
         needMoveKing,
         setNeedMoveKing,
+        isMultiJugador,
+        setOwnerPieces: setPiecesWhite,
+        setEnemyPieces: setPiecesBlack,
+        setUserTurn
       });
     }
-
+// setPiecesWhite
+//  setPiecesBlack
+ 
     if (turn === "black" && userTurn === "black") {
       
      
@@ -349,6 +386,10 @@ export const GameContextProvider = ({ children }: any) => {
         kingIsHake,
         needMoveKing,
         setNeedMoveKing,
+        isMultiJugador,
+        setOwnerPieces: setPiecesBlack,
+        setEnemyPieces:  setPiecesWhite,
+        setUserTurn,
       });
     }
   };
@@ -366,6 +407,13 @@ export const GameContextProvider = ({ children }: any) => {
         enemyPieces: piecesBlack,
         socket,
         messageGoal : 'peonWhiteInGoal',
+        isMultiJugador,
+        setOwnerPieces: setPiecesWhite ,
+        setEnemyPieces:  setPiecesBlack,
+        setUserTurn,
+        nextTurn: "black",
+        setIsPeonInGoal,
+        setShowAlert,
       });
      
       
@@ -379,6 +427,13 @@ export const GameContextProvider = ({ children }: any) => {
         enemyPieces: piecesWhite,
         socket,
         messageGoal : 'peonBlackInGoal',
+        isMultiJugador,
+        setOwnerPieces: setPiecesBlack,
+        setEnemyPieces:  setPiecesWhite,
+        setUserTurn,
+        nextTurn: "white",
+        setIsPeonInGoal,
+        setShowAlert
       });
      
     
@@ -404,8 +459,8 @@ export const GameContextProvider = ({ children }: any) => {
     setMultiJugador,
     turn,
     setTurn,
-    userTurn,
     setUserTurn,
+    userTurn,
     userId,
     setUserId,
     moverToSquare,
@@ -424,7 +479,9 @@ export const GameContextProvider = ({ children }: any) => {
     greatAlert, changeGreatAlert,
     changeGoodAlert,
     goodAlert,
-        
+    isMultiJugador, setIsMultiJugador,
+    makeSetupMultiJugador,
+    playerSurrender
     
   };
 

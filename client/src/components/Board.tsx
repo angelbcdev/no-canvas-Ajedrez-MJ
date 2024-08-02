@@ -16,6 +16,7 @@ const Board = () => {
     piecesWhite,
     userTurn,
     needMoveKing, 
+    isMultiJugador
     
   } = useGameContext();
 
@@ -28,18 +29,19 @@ const Board = () => {
       {cols.map((_, rowIndex) => (
         <div key={generateRandomString(3)} className="flex">
           {cols.map((col, squareIndex) => {
-            const direction =
-              userTurn === "black" ? rowIndex + 1 : 8  - rowIndex ;
+            const direction = isMultiJugador ?
+              userTurn === "black" ? rowIndex + 1 : 8  - rowIndex : 8 - rowIndex
 
             const location = `${col}${direction}`;
             const piece = [...piecesWhite, ...piecesBlack].find(
               (piece) => piece.initialPlace === location
             );
 
-            const isBlack =
+            const isBlack =  isMultiJugador ?
               rowIndex % 2 === 0
                 ? userTurn==="white" ? squareIndex % 2 === 0 :squareIndex % 2 !== 0
-                : userTurn==="white" ? squareIndex % 2 !== 0 :squareIndex % 2 === 0;
+                : userTurn==="white" ? squareIndex % 2 !== 0 :squareIndex % 2 === 0
+                : rowIndex % 2 !== 0  ? squareIndex % 2 === 0 :squareIndex % 2 !== 0
 
             const squareToMove = squaresSelected.find(
               (square) => square === location

@@ -31,17 +31,23 @@ io.on("connection", (socket) => {
       
      
       
-    // }
+    
     socket.emit('waitForPlayer',allPlayers)
 
     
     
     
+     
+    if (allPlayers.length > 1) {
+      
+      
       io.emit('userRegister',allPlayers)
-   
+      
+    }
 
     
   })
+ 
 
   socket.on("whiteMoved", (data) => {
     
@@ -86,11 +92,15 @@ io.on("connection", (socket) => {
 
 
   socket.on("disconnect", () => {
-    console.log("user disconnected");
-    allPlayers = allPlayers.filter(p => p.id != socket.id)
-
-    io.emit('userIsDisconected',allPlayers)
+    console.log("user disconnected",allPlayers);
+    const indexPlayerOff = allPlayers.findIndex((p) => p.id === socket.id);
+    if (indexPlayerOff == 0 || indexPlayerOff == 1) {
+      io.emit('userIsDisconected',true)
+    }
+    const restPlayer = allPlayers.filter((p) => p.id !== socket.id);
     
+    allPlayers = restPlayer
+   
   });
 });
 
