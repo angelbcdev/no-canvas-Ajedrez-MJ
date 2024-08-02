@@ -8,7 +8,7 @@ import showKinIsHake from "./showKinIsHake";
 
 
 
-const socket = io('https://multjugador-jedrez.onrender.com/'); // io("192.168.10.196:3000"); // "192.168.12.158:3000"  https://multjugador-jedrez.onrender.com/
+const socket = io('https://multjugador-jedrez.onrender.com/'); // https://multjugador-jedrez.onrender.com/
 
 
 
