@@ -4,6 +4,22 @@
 
 Este es un juego de ajedrez multijugador en línea que permite a los jugadores competir en partidas en tiempo real. La aplicación permite a los jugadores emparejarse con otros jugadores en salas, mientras que los demás usuarios pueden unirse como espectadores y participar enviando mensajes en el chat de la partida.
 
+
+## Modos de Juego
+### 1. Jugador vs Jugador (PvP)
+En este modo, puedes jugar una partida de ajedrez contra otro jugador en la misma máquina. Es ideal para practicar estrategias y enfrentarte a oponentes humanos. No hay límite de tiempo, lo que permite pensar cuidadosamente cada movimiento y disfrutar de una experiencia auténtica de ajedrez.
+
+### 2. Jugador vs IA
+Gracias a la dependencia chess.js, el juego cuenta con una inteligencia artificial básica pero justa. Este modo es perfecto para aquellos que quieren mejorar sus habilidades de ajedrez enfrentándose a una IA que proporciona un desafío adecuado sin ser demasiado difícil.
+
+### 3. Multijugador
+Utilizando Socket.IO, el juego permite partidas en tiempo real entre jugadores conectados a través de Internet. En este modo, puedes jugar contra oponentes en línea con una respuesta casi inmediata a cada movimiento. Los roles disponibles en este modo son:
+
+- Blancas: El jugador que comienza la partida.
+- Negras: El jugador que responde a las jugadas del oponente.
+- Espectador: Un jugador que puede observar la partida en curso. Los espectadores pueden interactuar enviando mensajes predefinidos para comentar la partida o animar a los jugadores.
+
+
 ## Tecnologías Usadas
 
 - **Frontend**: React, TypeScript
