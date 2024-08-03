@@ -67,6 +67,7 @@ interface IGameContext {
   setIsPlayerVSIA: React.Dispatch<React.SetStateAction<boolean>>
   isPlayerVsPlayer: boolean;
   setIsPlayerVsPlayer: React.Dispatch<React.SetStateAction<boolean>>
+  kingIsInHake: boolean;
   }
 
 
@@ -635,7 +636,8 @@ useEffect(() => {
     isPlayerVSIA, 
     setIsPlayerVSIA,
     isPlayerVsPlayer, 
-    setIsPlayerVsPlayer
+    setIsPlayerVsPlayer,
+    kingIsInHake
     
   };
 
