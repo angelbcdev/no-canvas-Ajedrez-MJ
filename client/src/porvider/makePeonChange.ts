@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import { Piece } from "./data";
 import { piecesToUci } from "./movePieceFunct";
+import { cols, movePieceAlfil, movePieceCaballo, movePieceReina, movePieceTorre } from "./movePieces";
 
 
 const makePeonChange =({
@@ -19,11 +20,12 @@ const makePeonChange =({
   setUserTurn,
   setIsPeonInGoal,
   setShowAlert,
+  setKingIsHake
 }:
 {
   currentTurn: 'white' | 'black'
   nextTurn: 'white' | 'black'
-  change: string
+  change: "reina" | "torre" | "caballo" | "alfil"
   details: string[]
   myPieces: Piece[]
   enemyPieces: Piece[]
@@ -36,6 +38,7 @@ const makePeonChange =({
       setUserTurn: React.Dispatch<React.SetStateAction<string>>
       setIsPeonInGoal: React.Dispatch<React.SetStateAction<boolean>>
       setShowAlert: React.Dispatch<React.SetStateAction<boolean>>
+      setKingIsHake: React.Dispatch<React.SetStateAction<string[]>>
 })=>{
 
   const pieceToSchante = myPieces.find(
@@ -44,15 +47,93 @@ const makePeonChange =({
   const oldPiece = myPieces.filter(
     (piece) => piece.idPiece !== details[0]
   );
+
+  const newLocation = details[2]
   if (pieceToSchante !== undefined) {
     setMyOwnPieces([
       ...oldPiece,
-      { ...pieceToSchante, ficha: change, initialPlace: details[2] },
+      { ...pieceToSchante, ficha: change, initialPlace: newLocation },
     ]);
     const findEnemy =   enemyPieces
     .find(
-      (piece) => piece.initialPlace === details[2]
+      (piece) => piece.initialPlace === newLocation
     );
+
+    const currentLocation = {
+      row: newLocation[0] as string,
+      col: Number(newLocation[1]),
+    };
+    const currentRowIndex = cols.indexOf(currentLocation.row);
+
+    const allPiecesToogether = [...myPieces.map((piece) => piece.initialPlace), ...enemyPieces.map((piece) => piece.initialPlace)];
+
+    switch (change) {
+      case "reina":
+        movePieceReina({
+            currentLocation,
+            currentRowIndex,
+            youCanMove:setKingIsHake,
+            ocupedSpot: allPiecesToogether,
+            piece:pieceToSchante
+        })
+
+        break;
+      case "torre":
+        movePieceTorre({
+            currentLocation,
+            currentRowIndex,
+            youCanMove:setKingIsHake,
+            ocupedSpot: allPiecesToogether
+        })
+        break;
+      case "caballo":
+        movePieceCaballo({
+            currentLocation,
+            currentRowIndex,
+            youCanMove:setKingIsHake,
+            piece:pieceToSchante
+        })
+        break;
+      case "alfil":
+        movePieceAlfil({
+            currentLocation,
+            currentRowIndex,
+            youCanMove:setKingIsHake,
+            ocupedSpot: allPiecesToogether,
+            piece:pieceToSchante
+        })
+    }
+
+    // if (pieceToSchante.ficha === 'reina') {
+            
+    
+    // }
+   
+    // if (pieceToSchante.ficha === 'alfil') {
+    //   movePieceAlfil({
+    //     pieceToSchante,
+    //     currentLocation,
+    //       currentRowIndex,
+    //       youCanMove:setKingIsHake,
+    //       ocupedSpot: allPiecesToogether
+    //   })
+    // }
+    // if (pieceToSchante.ficha === 'torre') {
+    //   movePieceTorre({
+    //     currentLocation,
+    //       currentRowIndex,
+    //       youCanMove:setKingIsHake,
+    //       ocupedSpot: allPiecesToogether
+    //   })
+    // }
+    // if (pieceToSchante.ficha === 'caballo') {
+    //   movePieceCaballo({
+    //     currentLocation,
+    //       currentRowIndex,
+    //       youCanMove:setKingIsHake,
+    //       piece
+    //   })
+    // }
 
 
 
@@ -90,7 +171,7 @@ const makePeonChange =({
     setUserTurn(nextTurn)
     setIsPeonInGoal(false)
     setShowAlert(false)
-    console.log('updete move');
+    
   }
 
   }

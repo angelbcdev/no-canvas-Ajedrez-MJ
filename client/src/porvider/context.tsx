@@ -312,7 +312,7 @@ export const GameContextProvider = ({ children }: any) => {
 
     if (!isMultiJugador) {
       setUserTurn("white");
-      console.log('player alone');
+      
       
     }
    
@@ -354,11 +354,12 @@ export const GameContextProvider = ({ children }: any) => {
         isMultiJugador,
         setOwnerPieces: setPiecesWhite,
         setEnemyPieces: setPiecesBlack,
-        setUserTurn
+        setUserTurn,
+        setReyIsDeath,
+        setResult,
       });
     }
-// setPiecesWhite
-//  setPiecesBlack
+
  
     if (turn === "black" && userTurn === "black") {
       
@@ -390,11 +391,13 @@ export const GameContextProvider = ({ children }: any) => {
         setOwnerPieces: setPiecesBlack,
         setEnemyPieces:  setPiecesWhite,
         setUserTurn,
+        setReyIsDeath,
+        setResult,
       });
     }
   };
 
-  const changePeonInGoal = (change: string) => {
+  const changePeonInGoal = (change: "reina" | "caballo" | "torre" | "alfil") => {
     const details = piecetomove.split("-");
 
     if (details[1] === "white") {
@@ -414,6 +417,7 @@ export const GameContextProvider = ({ children }: any) => {
         nextTurn: "black",
         setIsPeonInGoal,
         setShowAlert,
+        setKingIsHake,
       });
      
       
@@ -433,7 +437,8 @@ export const GameContextProvider = ({ children }: any) => {
         setUserTurn,
         nextTurn: "white",
         setIsPeonInGoal,
-        setShowAlert
+        setShowAlert,
+        setKingIsHake
       });
      
     

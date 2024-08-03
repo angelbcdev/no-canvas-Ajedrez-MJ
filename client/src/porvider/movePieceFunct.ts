@@ -36,7 +36,9 @@ const movePieceFunct = ({
   setNeedMoveKing,
   isMultiJugador,
   setOwnerPieces,
-setEnemyPieces,
+  setEnemyPieces,
+  setReyIsDeath,
+  setResult,
 
     setUserTurn,
 }:{
@@ -62,9 +64,10 @@ setEnemyPieces,
   setNeedMoveKing: React.Dispatch<React.SetStateAction<boolean>>
   isMultiJugador: boolean
   setOwnerPieces: React.Dispatch<React.SetStateAction<Piece[]>>
-setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
-
-    setUserTurn: React.Dispatch<React.SetStateAction<string>>
+  setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
+  setUserTurn: React.Dispatch<React.SetStateAction<string>>
+  setReyIsDeath: React.Dispatch<React.SetStateAction<boolean>>
+  setResult: React.Dispatch<React.SetStateAction<string>>
 })=>{
 
   
@@ -79,6 +82,7 @@ setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
   if (needMoveKing && piece?.ficha === "rey"){ 
     setNeedMoveKing(false)
     socket.emit("kingIsSafe", false)
+  
   }
  
 
@@ -106,6 +110,12 @@ setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
           const findEnemy = enemyPieces.find((piece) => piece.initialPlace === newLocation);
           if (findEnemy?.ficha == 'rey' ) {
             socket.emit(moveToWin, 'Jugador white gano' )
+            if (!isMultiJugador) {
+              setReyIsDeath(true)
+              setShowAlert(true)
+              
+              setResult('Partida terminada')
+            }
           }
 
 
@@ -123,6 +133,14 @@ setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
             col: Number(newLocation[1]),
           };
           const currentRowIndex = cols.indexOf(currentLocation.row);
+          if (piece.ficha === 'rey') {
+            movePieceKing({
+              currentLocation,
+                currentRowIndex,
+                youCanMove:setKingIsHake,
+                piece
+            })
+          }
 
           if (piece.ficha === 'reina') {
             
@@ -134,14 +152,7 @@ setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
                 piece
             })
           }
-          if (piece.ficha === 'rey') {
-            movePieceKing({
-              currentLocation,
-                currentRowIndex,
-                youCanMove:setKingIsHake,
-                piece
-            })
-          }
+         
           if (piece.ficha === 'alfil') {
             movePieceAlfil({
               piece,
@@ -167,6 +178,8 @@ setEnemyPieces: React.Dispatch<React.SetStateAction<Piece[]>>
                 piece
             })
           }
+
+          
           if (piece.ficha === 'peon') {
             movePiecePeon({
               piece,
