@@ -130,9 +130,17 @@ const Board = () => {
                 }}
                 key={generateRandomString(5)}
                 className={` ${
-                  isBlack ? "bg-white text-black/50" : "bg-black text-white/50"
+                  isBlack ? "bg-[#ddb58a] text-black/50" : "bg-[#591b03] text-white/50"
                 } relative z-0  w-[54px] h-[54px] sm:w-16 sm:h-16  flex justify-center items-center`}
               >
+                <div className=" bg-[url(')]">
+                <img
+                className="absolute top-0 left-0 opacity-40 w-[54px] h-[54px] sm:w-16 sm:h-16 "
+                
+                src={!isBlack ? "/texture0.webp":"/texture1.webp"} 
+                alt="" />
+
+                </div>
                 {!allPiecesToogether.includes(location) && <p className="absolute z-0">{location}</p>}
                 <div
                   className={`w-full h-full relative z-10  ${

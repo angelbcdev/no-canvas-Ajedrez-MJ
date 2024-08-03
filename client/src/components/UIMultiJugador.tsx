@@ -54,8 +54,8 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
       <div className={`flex 
-        ${!isWhite ? "sm:flex-row-reverse" : "sm:flex-row"}
-        ${!isWhite ? "flex-col-reverse" : "flex-col"} `}>
+        ${!isWhite && isMultiJugador ? "sm:flex-row-reverse" : "sm:flex-row"}
+        ${!isWhite && !isMultiJugador ? "flex-col-reverse" : "flex-col"} `}>
         {showPiecesCount && <ShowCountPices pieces={piecesWhite} />}
         <div className="hiddend flex flex-row">
           {children}
@@ -107,7 +107,7 @@ const ShowCountPices = ({ pieces }: { pieces: Piece[] }) => {
         if (key === 'rey') return null
         return (
           <div
-            className={`flex flex-col   items-center  justify-center  ${isWhite ? ' ' : 'invert'} `}
+            className={`flex flex-col   items-center  justify-center  ${!isWhite ? ' ' : 'invert'} `}
             key={key}>
             <img
               className="w-10 h-12"

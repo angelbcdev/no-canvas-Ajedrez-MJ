@@ -1,11 +1,11 @@
 import { generateRandomString } from "../../porvider/const";
 import useGameContext from "../../porvider/context";
-type TOpation = "torre" | "caballo" | "alfil" |  "reina"
-const peonCanChangeTo: TOpation[] = ["torre", "caballo", "alfil",  "reina"]
+type TOpation = "torre" | "caballo" | "alfil" | "reina"
+const peonCanChangeTo: TOpation[] = ["torre", "caballo", "alfil", "reina"]
 
 const ChangePeonWindow = () => {
   const { changePeonInGoal } = useGameContext()
-  
+
   return (
     <section className="absolute z-50 w-[250px] h-[250px] bg-slate-200 shadow-inner translate-y-1/2 left-1/2 -translate-x-1/2 rounded-md  pt-4 ">
       <p className=" text-center font-semibold text-xl ">Elige una Pieza</p>

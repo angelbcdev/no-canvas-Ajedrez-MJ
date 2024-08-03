@@ -45,7 +45,7 @@ interface IGameContext {
   setResult: React.Dispatch<React.SetStateAction<string>>;
   showPiecesCount: boolean;
   setShowPiecesCount: React.Dispatch<React.SetStateAction<boolean>>;
-  history: string[]; 
+  history: string[];
   setHistory?: React.Dispatch<React.SetStateAction<string[]>>
   kingIsHake: string[];
   setKingIsHake: React.Dispatch<React.SetStateAction<string[]>>;
@@ -53,14 +53,14 @@ interface IGameContext {
   setNeedMoveKing: React.Dispatch<React.SetStateAction<boolean>>;
   views: number;
   niceAlert: boolean;
-  changeNiceAlert: ()=>void;
+  changeNiceAlert: () => void;
   greatAlert: boolean;
-  changeGreatAlert: ()=>void;
+  changeGreatAlert: () => void;
   goodAlert: boolean;
-  changeGoodAlert: ()=>void;
+  changeGoodAlert: () => void;
   isMultiJugador: boolean;
   setIsMultiJugador: React.Dispatch<React.SetStateAction<boolean>>;
-  makeSetupMultiJugador:()=>void 
+  makeSetupMultiJugador: () => void
   playerSurrender: boolean;
   statusBoard: string[];
   isPlayerVSIA: boolean;
@@ -68,7 +68,7 @@ interface IGameContext {
   isPlayerVsPlayer: boolean;
   setIsPlayerVsPlayer: React.Dispatch<React.SetStateAction<boolean>>
   kingIsInHake: boolean;
-  }
+}
 
 
 const gameContext = createContext<IGameContext>({} as IGameContext);
@@ -77,16 +77,16 @@ const backupHistory: string[] = [];
 const saveToBackup = ({
   newMove,
   saveMove
-}:{
+}: {
   newMove: string
   saveMove: React.Dispatch<React.SetStateAction<string[]>>;
 }) => {
   if (!backupHistory.includes(newMove)) {
     backupHistory.push(newMove);
-  saveMove(data => [...data, newMove]);
+    saveMove(data => [...data, newMove]);
 
   }
-  
+
 
 }
 
@@ -124,79 +124,79 @@ export const GameContextProvider = ({ children }: any) => {
   //chess IA Controller
 
 
-const [statusBoard, setStatusBoard] = useState(
-  controlBoard.ascii().split("\n")
-);
-const [kingIsInHake, setKingIsInHake] = useState(false);
-const allmoves = controlBoard.moves();
+  const [statusBoard, setStatusBoard] = useState(
+    controlBoard.ascii().split("\n")
+  );
+  const [kingIsInHake, setKingIsInHake] = useState(false);
+  const allmoves = controlBoard.moves();
 
-const refrechshowBoard = () => {
-  setStatusBoard(controlBoard.ascii().split("\n"));
-};
-const makeUserMove = (uci: string) => {
+  const refrechshowBoard = () => {
+    setStatusBoard(controlBoard.ascii().split("\n"));
+  };
+  const makeUserMove = (uci: string) => {
 
-  
-  
-  let extraMove = "";
 
-  if (allmoves.includes(uci + "+")) {
-    extraMove = "+";
-    setKingIsInHake(true);
-  }
-  if (allmoves.includes(uci + "#")) {
-    extraMove = "#";
-    setKingIsInHake(true);
-  }
 
-  try {
-    controlBoard.move(uci + extraMove);
-  } catch (error) {
-    console.log("error", error);
-  }
+    let extraMove = "";
 
-  refrechshowBoard();
-};
+    if (allmoves.includes(uci + "+")) {
+      extraMove = "+";
+      setKingIsInHake(true);
+    }
+    if (allmoves.includes(uci + "#")) {
+      extraMove = "#";
+      setKingIsInHake(true);
+    }
+
+    try {
+      controlBoard.move(uci + extraMove);
+    } catch (error) {
+      console.log("error", error);
+    }
+
+    refrechshowBoard();
+  };
 
 
 
   const IAMakeMove = () => {
     let moveIsKill = false;
     let moveSaved = "";
-  
+
     const moves = controlBoard.moves();
-    
-    let move =""
+
+    let move = ""
     if (moves.length === 0) {
 
       setReyIsDeath(true)
       setShowAlert(true)
-      
+
       setResult('Partida terminada')
-      
-    }else{
+
+    } else {
       move = moves[Math.floor(Math.random() * moves.length)] == 'O-O' ? moves[Math.floor(Math.random() * moves.length)] : moves[Math.floor(Math.random() * moves.length)];
       const moveCanBeKill = moves.find((m) => m[1] === "x");
       if (moveCanBeKill) {
         moveSaved = moveCanBeKill;
         controlBoard.move(moveCanBeKill);
-    
+
         moveIsKill = true;
-    
+
       } else {
         moveSaved = move;
         controlBoard.move(move);
       }
     }
-   
-    
-    
-   
-  
+
+
+
+
+
     refrechshowBoard();
     const history = controlBoard.history({ verbose: true });
-    
 
-    saveToBackup({newMove:moveSaved, saveMove: setHistory})
+
+    saveToBackup({ newMove: moveSaved, saveMove: setHistory })
     return {
       from: history[history.length - 1].from,
       to: history[history.length - 1].to,
@@ -206,44 +206,45 @@ const makeUserMove = (uci: string) => {
   };
 
 
-useEffect(() => {
-  if (isPlayerVSIA && userTurn === 'black') {
-    
-    
-    if (turn === "black" && userTurn === "black") {
-      
-      const result = IAMakeMove()!;
+  useEffect(() => {
+    if (isPlayerVSIA && userTurn === 'black') {
 
-      if (result.moveIsKill ) {
-        const piecePlayerToRemove = piecesWhite.filter(
-          (piece) => piece.initialPlace !== result.to
+
+      if (turn === "black" && userTurn === "black") {
+
+        const result = IAMakeMove()!;
+
+        if (result.moveIsKill) {
+          const piecePlayerToRemove = piecesWhite.filter(
+            (piece) => piece.initialPlace !== result.to
+          );
+
+          setPiecesWhite(piecePlayerToRemove);
+        }
+
+        const seletedEnemyPiece: Piece | undefined = piecesBlack.find(
+          (piece) => piece.initialPlace === result.from
         );
 
-        setPiecesWhite(piecePlayerToRemove);
+        if (seletedEnemyPiece === undefined) return
+
+
+
+        const ollPieves = piecesBlack.filter(
+          (piece) => piece.idPiece !== seletedEnemyPiece?.idPiece
+        );
+
+
+
+        setPiecesBlack([...ollPieves, { ...seletedEnemyPiece, initialPlace: result.to }]);
+        setUserTurn("white");
+        setTurn("white");
+
       }
 
-      const seletedEnemyPiece: Piece | undefined = piecesBlack.find(
-        (piece) => piece.initialPlace === result.from
-      );
-
-      if ( seletedEnemyPiece === undefined) return
-      
-      
-      
-      const ollPieves = piecesBlack.filter(
-        (piece) => piece.idPiece !== seletedEnemyPiece?.idPiece
-      );
-     
-      
-      
-      setPiecesBlack([...ollPieves, { ...seletedEnemyPiece, initialPlace: result.to }]);
-      setUserTurn("white");
-      setTurn("white");
-   
     }
-
-  }}
-, [userTurn])
+  }
+    , [userTurn])
 
 
 
@@ -251,12 +252,12 @@ useEffect(() => {
   //***************************************
   const changeGreatAlert = () => {
     socket.emit("changeAlert", "great");
-  
+
   }
 
   const changeNiceAlert = () => {
     socket.emit("changeAlert", "nice");
-   
+
   }
 
   const changeGoodAlert = () => {
@@ -276,7 +277,7 @@ useEffect(() => {
       setGreatAlert(false);
     }, 3000);
   }
-  
+
 
   const activeGoodAlert = () => {
     setGoodAlert(true);
@@ -287,91 +288,91 @@ useEffect(() => {
 
 
   const makeSetupMultiJugador = () => {
-   
-      
-      setUserId(socket.id || "");
-      socket.emit("find", {
-        id: socket.id,
+
+
+    setUserId(socket.id || "");
+    socket.emit("find", {
+      id: socket.id,
       // });
 
     });
   }
 
 
-  if (isMultiJugador){
-   
+  if (isMultiJugador) {
 
-      socket.on("userRegister", (data: any) => {
-        
-        const myIndex = data.findIndex((p: any) => p.id === socket.id);
-        setShowAlert(false);
-        setWaitForUser(false);
-        
-        if (myIndex !== -1) {
-          switch (myIndex) {
-            case 0:
-              setUserTurn("white");
-              break;
-            case 1:
-              setUserTurn("black");
-              break;
-          
-            default:
-              setUserTurn("espectador");
-              setViews(data.length );
-              break;
-          }
-          
+
+    socket.on("userRegister", (data: any) => {
+
+      const myIndex = data.findIndex((p: any) => p.id === socket.id);
+      setShowAlert(false);
+      setWaitForUser(false);
+
+      if (myIndex !== -1) {
+        switch (myIndex) {
+          case 0:
+            setUserTurn("white");
+            break;
+          case 1:
+            setUserTurn("black");
+            break;
+
+          default:
+            setUserTurn("espectador");
+            setViews(data.length);
+            break;
         }
-      });
 
-      socket.on("whiteActualize", (data: any) => {
-        setTurn("black");
-        setPiecesWhite(data.piecesWhite);
-        setPiecesBlack(data.piecesBlack);
-       
-        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
-      });
+      }
+    });
 
-      socket.on("peonWhiteChange", (data: any) => {
-        setTurn("black");
-        setShowAlert(false);
-        setIsPeonInGoal(false);
-        setPiecesWhite(data.piecesWhite);
-        setPiecesBlack(data.piecesBlack);
-        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
-      });
+    socket.on("whiteActualize", (data: any) => {
+      setTurn("black");
+      setPiecesWhite(data.piecesWhite);
+      setPiecesBlack(data.piecesBlack);
 
-      socket.on("blackActualize", (data: any) => {
-        setTurn("white");
-        setPiecesWhite(data.piecesWhite);
-        setPiecesBlack(data.piecesBlack);
-       
-        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
-      });
+      saveToBackup({ newMove: data.uciMove, saveMove: setHistory })
+    });
 
-      socket.on("peonBlackChange", (data: any) => {
-        setShowAlert(false);
-        setIsPeonInGoal(false);
-        setTurn("white");
-        setPiecesWhite(data.piecesWhite);
-        setPiecesBlack(data.piecesBlack);
-        saveToBackup({newMove: data.uciMove, saveMove: setHistory})
-        
-      });
+    socket.on("peonWhiteChange", (data: any) => {
+      setTurn("black");
+      setShowAlert(false);
+      setIsPeonInGoal(false);
+      setPiecesWhite(data.piecesWhite);
+      setPiecesBlack(data.piecesBlack);
+      saveToBackup({ newMove: data.uciMove, saveMove: setHistory })
+    });
 
-      socket.on("userIsDisconected", (mainPlayerOff: boolean) => {
-        if (mainPlayerOff) {
-          setShowAlert(true);
-          setPlayerSurrender(true);
+    socket.on("blackActualize", (data: any) => {
+      setTurn("white");
+      setPiecesWhite(data.piecesWhite);
+      setPiecesBlack(data.piecesBlack);
 
-          setPiecesWhite(fichasWhite)
-          setPiecesBlack(fichasBlack)
+      saveToBackup({ newMove: data.uciMove, saveMove: setHistory })
+    });
 
-        }
-      });
-      
- 
+    socket.on("peonBlackChange", (data: any) => {
+      setShowAlert(false);
+      setIsPeonInGoal(false);
+      setTurn("white");
+      setPiecesWhite(data.piecesWhite);
+      setPiecesBlack(data.piecesBlack);
+      saveToBackup({ newMove: data.uciMove, saveMove: setHistory })
+
+    });
+
+    socket.on("userIsDisconected", (mainPlayerOff: boolean) => {
+      if (mainPlayerOff) {
+        setShowAlert(true);
+        setPlayerSurrender(true);
+
+        setPiecesWhite(fichasWhite)
+        setPiecesBlack(fichasBlack)
+
+      }
+    });
+
+
 
     socket.on("blackWin", () => {
       setShowAlert(true);
@@ -417,52 +418,54 @@ useEffect(() => {
 
 
   useEffect(() => {
-  
+
 
     if (turn === "black") { //search for king in black pieces
-      showKinIsHake({ 
+      showKinIsHake({
         enemyPieces: piecesBlack,
         kingIsHake,
         setPiecetomove,
-        socket});
+        socket
+      });
 
     }
     if (turn === "white") { //search for king in white pieces
-      showKinIsHake({ 
+      showKinIsHake({
         enemyPieces: piecesWhite,
         kingIsHake,
         setPiecetomove,
-        socket});
+        socket
+      });
     }
-    
 
-    
-    
+
+
+
   }, [kingIsHake]);
 
   useEffect(() => {
-   
+
 
     if (!isMultiJugador) {
       setUserTurn("white");
-      
-      
-    }
-   
 
-    
+
+    }
+
+
+
 
 
   }, []);
-  
- 
+
+
 
   const moverToSquare = ({ newLocation }: { newLocation: string }) => {
-    
+
     if (turn === "white" && userTurn === "white") {
-      
-     
-     
+
+
+
       movePieceFunct({
         curretTurn: "white",
         myPieces: piecesWhite,
@@ -498,12 +501,12 @@ useEffect(() => {
       });
     }
 
- 
+
     if (turn === "black" && userTurn === "black") {
-      
-     
-     
-      
+
+
+
+
       movePieceFunct({
         curretTurn: "black",
         myPieces: piecesBlack,
@@ -527,14 +530,14 @@ useEffect(() => {
         setNeedMoveKing,
         isMultiJugador,
         setOwnerPieces: setPiecesBlack,
-        setEnemyPieces:  setPiecesWhite,
+        setEnemyPieces: setPiecesWhite,
         setUserTurn,
         setReyIsDeath,
         setResult,
         saveToBackup,
         setHistory,
-        
-        
+
+
         isPlayerVsPlayer
       });
     }
@@ -552,10 +555,10 @@ useEffect(() => {
         setMyOwnPieces: setPiecesWhite,
         enemyPieces: piecesBlack,
         socket,
-        messageGoal : 'peonWhiteInGoal',
+        messageGoal: 'peonWhiteInGoal',
         isMultiJugador,
-        setOwnerPieces: setPiecesWhite ,
-        setEnemyPieces:  setPiecesBlack,
+        setOwnerPieces: setPiecesWhite,
+        setEnemyPieces: setPiecesBlack,
         setUserTurn,
         nextTurn: "black",
         setIsPeonInGoal,
@@ -564,8 +567,8 @@ useEffect(() => {
         makeUserMove,
         isPlayerVSIA,
       });
-     
-      
+
+
     } else if (details[1] === "black") {
       makePeonChange({
         currentTurn: "black",
@@ -575,18 +578,18 @@ useEffect(() => {
         setMyOwnPieces: setPiecesBlack,
         enemyPieces: piecesWhite,
         socket,
-        messageGoal : 'peonBlackInGoal',
+        messageGoal: 'peonBlackInGoal',
         isMultiJugador,
         setOwnerPieces: setPiecesBlack,
-        setEnemyPieces:  setPiecesWhite,
+        setEnemyPieces: setPiecesWhite,
         setUserTurn,
         nextTurn: "white",
         setIsPeonInGoal,
         setShowAlert,
         setKingIsHake
       });
-     
-    
+
+
     }
   };
 
@@ -623,9 +626,9 @@ useEffect(() => {
     setShowPiecesCount,
     history,
     kingIsHake, setKingIsHake,
-    needMoveKing, setNeedMoveKing,views,
+    needMoveKing, setNeedMoveKing, views,
     niceAlert,
-    changeNiceAlert ,
+    changeNiceAlert,
     greatAlert, changeGreatAlert,
     changeGoodAlert,
     goodAlert,
@@ -633,12 +636,12 @@ useEffect(() => {
     makeSetupMultiJugador,
     playerSurrender,
     statusBoard,
-    isPlayerVSIA, 
+    isPlayerVSIA,
     setIsPlayerVSIA,
-    isPlayerVsPlayer, 
+    isPlayerVsPlayer,
     setIsPlayerVsPlayer,
     kingIsInHake
-    
+
   };
 
   return <gameContext.Provider value={values}>{children}</gameContext.Provider>;
