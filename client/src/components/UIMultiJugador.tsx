@@ -3,7 +3,8 @@ import useGameContext from "../porvider/context";
 import { Piece, PieceName } from "../porvider/data";
 
 const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
-  const { userTurn, userId, turn, piecesWhite, piecesBlack, showPiecesCount, setShowPiecesCount, history, piecetomove } = useGameContext();
+  const { userTurn,  turn, piecesWhite, piecesBlack,
+     showPiecesCount, setShowPiecesCount, history, piecetomove ,isMultiJugador} = useGameContext();
   const [showHistory, setShowHistory] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -23,7 +24,7 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
   const isWhite = userTurn == "white";
   return (
     <div className="font-montserrat  select-none relative ">
-       <ObserverViews />
+      {isMultiJugador && <ObserverViews />}
 
       
       <div className="relative"
@@ -62,7 +63,7 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
         {showPiecesCount && <ShowCountPices pieces={piecesBlack} />}
       </div>
 
-      <p>{userId ? '' : "Cargando..."}</p>
+      
 
 
       <div className="text-2xl text-center mt-4 py-2  bg-black text-white rounded-lg relative">

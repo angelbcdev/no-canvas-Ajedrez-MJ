@@ -20,7 +20,9 @@ const makePeonChange =({
   setUserTurn,
   setIsPeonInGoal,
   setShowAlert,
-  setKingIsHake
+  setKingIsHake,
+  makeUserMove,
+  isPlayerVSIA
 }:
 {
   currentTurn: 'white' | 'black'
@@ -39,6 +41,8 @@ const makePeonChange =({
       setIsPeonInGoal: React.Dispatch<React.SetStateAction<boolean>>
       setShowAlert: React.Dispatch<React.SetStateAction<boolean>>
       setKingIsHake: React.Dispatch<React.SetStateAction<string[]>>
+      makeUserMove?: (uci:string) => void
+      isPlayerVSIA?: boolean
 })=>{
 
   const pieceToSchante = myPieces.find(
@@ -104,36 +108,7 @@ const makePeonChange =({
         })
     }
 
-    // if (pieceToSchante.ficha === 'reina') {
-            
-    
-    // }
-   
-    // if (pieceToSchante.ficha === 'alfil') {
-    //   movePieceAlfil({
-    //     pieceToSchante,
-    //     currentLocation,
-    //       currentRowIndex,
-    //       youCanMove:setKingIsHake,
-    //       ocupedSpot: allPiecesToogether
-    //   })
-    // }
-    // if (pieceToSchante.ficha === 'torre') {
-    //   movePieceTorre({
-    //     currentLocation,
-    //       currentRowIndex,
-    //       youCanMove:setKingIsHake,
-    //       ocupedSpot: allPiecesToogether
-    //   })
-    // }
-    // if (pieceToSchante.ficha === 'caballo') {
-    //   movePieceCaballo({
-    //     currentLocation,
-    //       currentRowIndex,
-    //       youCanMove:setKingIsHake,
-    //       piece
-    //   })
-    // }
+ 
 
 
 
@@ -171,7 +146,11 @@ const makePeonChange =({
     setUserTurn(nextTurn)
     setIsPeonInGoal(false)
     setShowAlert(false)
-    
+    if (isPlayerVSIA){
+      
+      
+      makeUserMove && makeUserMove(uciMove)
+    }
   }
 
   }

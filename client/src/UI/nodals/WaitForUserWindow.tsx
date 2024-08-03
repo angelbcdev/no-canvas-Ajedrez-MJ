@@ -5,22 +5,32 @@ type TOpation = "Player vs Player" | "Player vs AI" | "Multiplayer";
 const options: TOpation[] = ["Player vs Player", "Player vs AI", "Multiplayer"];
 
 const WaitForUserWindow =()=>{
-  const { setShowAlert ,setWaitForUser ,   setIsMultiJugador ,isMultiJugador ,makeSetupMultiJugador} = useGameContext()
+  const { setShowAlert ,setWaitForUser ,   setIsMultiJugador ,isMultiJugador 
+    ,makeSetupMultiJugador , setIsPlayerVSIA,
+     setIsPlayerVsPlayer
+  } = useGameContext()
 
   const handleClick = (option: "Player vs Player" | "Player vs AI" 
     |"Multiplayer") => {
      
     switch (option) {
       case "Player vs Player":
+        setIsPlayerVsPlayer(true);
         setIsMultiJugador(false);
         setShowAlert(false);
         setWaitForUser(false);
         break;
       case "Player vs AI":
-        // setIsMultiJugador(true);
+        setIsPlayerVsPlayer(false);
+        setIsPlayerVSIA(true);
+        setIsMultiJugador(false);
+        setShowAlert(false);
+        setWaitForUser(false)
+       
         break;
       case "Multiplayer":
         makeSetupMultiJugador()
+        setIsPlayerVsPlayer(false);
         setIsMultiJugador(true);
         setShowAlert(true);
         setWaitForUser(true); 

@@ -3,12 +3,13 @@
 import { Socket  } from "socket.io-client";
 import { Piece } from "./data";
 import { cols, movePieceAlfil, movePieceCaballo, movePieceKing, movePiecePeon, movePieceReina, movePieceTorre } from "./movePieces";
+import { PieceSymbol } from "chess.js";
 
-export const piecesToUci: Record< string , string> = {
+export const piecesToUci: Record< string , PieceSymbol> = {
   peon: "p",
-  torre: "t",
-  caballo: "c",
-  alfil: "a",
+  torre: "r",
+  caballo: "n",
+  alfil: "b",
   rey: "k",
   reina: "q",
 };
@@ -39,10 +40,14 @@ const movePieceFunct = ({
   setEnemyPieces,
   setReyIsDeath,
   setResult,
-
-    setUserTurn,
+  saveToBackup,
+  setHistory,
+  setUserTurn,
+  isPlayerVSIA,
+  makeUserMove,
+  isPlayerVsPlayer
 }:{
-  curretTurn: 'white' | 'black'
+  curretTurn: 'white' | 'black' 
   myPieces: Piece[],
   piecetomove: string
   newLocation: string
@@ -68,12 +73,20 @@ const movePieceFunct = ({
   setUserTurn: React.Dispatch<React.SetStateAction<string>>
   setReyIsDeath: React.Dispatch<React.SetStateAction<boolean>>
   setResult: React.Dispatch<React.SetStateAction<string>>
+  saveToBackup:({newMove, saveMove}: {newMove: string, saveMove: React.Dispatch<React.SetStateAction<string[]>>;})=>void
+  setHistory: React.Dispatch<React.SetStateAction<string[]>>
+  isPlayerVSIA?:boolean
+  makeUserMove?:(ucimove:string)=>void
+  isPlayerVsPlayer?:boolean
 })=>{
 
   
   const piece = myPieces.find((piece) => piece.idPiece === piecetomove);
   const oldPiece = myPieces.filter((piece) => piece.idPiece !== piecetomove);
-
+  if (isPlayerVSIA ){
+    console.log('piece---',piece , newLocation);
+    
+  }
 
   const piecesAlyWhite = myPieces.map((piece) => piece.initialPlace);
   const piecesAlyBlack = enemyPieces.map((piece) => piece.initialPlace);
@@ -179,7 +192,7 @@ const movePieceFunct = ({
             })
           }
 
-          
+
           if (piece.ficha === 'peon') {
             movePiecePeon({
               piece,
@@ -194,19 +207,34 @@ const movePieceFunct = ({
           setTimeout(() => {
             const playerPiecesUpdate = [...oldPiece, { ...piece, initialPlace: newLocation }]
             const enemyPiecesUpdate =  findEnemy ? enemyPieces.filter((piece) => piece.idPiece !== findEnemy.idPiece) : enemyPieces
-            if (isMultiJugador) {
+            
+            
+            if (isMultiJugador  ) {
+              console.log('player multijugador');
               socket.emit(moveAlert, {
                 [curretTurn === 'white' ? 'piecesWhite' : 'piecesBlack']: playerPiecesUpdate,
                 [curretTurn === 'white' ? 'piecesBlack' : 'piecesWhite']: enemyPiecesUpdate,
                 uciMove
               });
-            }else{
-             
+            }
+            if (isPlayerVsPlayer){
+              console.log('player vs player');
               
               setOwnerPieces(playerPiecesUpdate)
               setEnemyPieces(enemyPiecesUpdate)
               setUserTurn(nextTurn)
+              saveToBackup({newMove: uciMove, saveMove: setHistory})
               
+            }
+            if (isPlayerVSIA ) {
+              console.log('player vs ai');
+              
+              makeUserMove && makeUserMove(uciMove)
+
+              setOwnerPieces(playerPiecesUpdate)
+              setEnemyPieces(enemyPiecesUpdate)
+              setUserTurn("black")
+              saveToBackup({newMove: uciMove, saveMove: setHistory})
             }
          
            

@@ -4,13 +4,13 @@ import io from "socket.io-client";
 import movePieceFunct from "./movePieceFunct";
 import makePeonChange from "./makePeonChange";
 import showKinIsHake from "./showKinIsHake";
+import { Chess } from "chess.js";
 
 
 
+const socket = io('https://multjugador-jedrez.onrender.com/'); // https://multjugador-jedrez.onrender.com/
 
-const socket = io('localhost:3000'); // https://multjugador-jedrez.onrender.com/
-
-
+const controlBoard = new Chess();
 
 
 
@@ -38,7 +38,7 @@ interface IGameContext {
   userId: string;
   setUserId: React.Dispatch<React.SetStateAction<string>>;
   moverToSquare: ({ newLocation }: { newLocation: string }) => void;
-  changePeonInGoal: (change: string) => void;
+  changePeonInGoal: (change: "reina" | "torre" | "caballo" | "alfil") => void;
   reyIsDeath: boolean;
   setReyIsDeath: React.Dispatch<React.SetStateAction<boolean>>;
   result: string;
@@ -62,7 +62,11 @@ interface IGameContext {
   setIsMultiJugador: React.Dispatch<React.SetStateAction<boolean>>;
   makeSetupMultiJugador:()=>void 
   playerSurrender: boolean;
-    
+  statusBoard: string[];
+  isPlayerVSIA: boolean;
+  setIsPlayerVSIA: React.Dispatch<React.SetStateAction<boolean>>
+  isPlayerVsPlayer: boolean;
+  setIsPlayerVsPlayer: React.Dispatch<React.SetStateAction<boolean>>
   }
 
 
@@ -111,16 +115,152 @@ export const GameContextProvider = ({ children }: any) => {
   const [niceAlert, setNiceAlert] = useState<boolean>(false);
   const [greatAlert, setGreatAlert] = useState<boolean>(false);
   const [goodAlert, setGoodAlert] = useState<boolean>(false);
-
+  const [isPlayerVsPlayer, setIsPlayerVsPlayer] = useState<boolean>(false);
   const [isMultiJugador, setIsMultiJugador] = useState<boolean>(false);
+  const [isPlayerVSIA, setIsPlayerVSIA] = useState<boolean>(false);
   const [playerSurrender, setPlayerSurrender] = useState<boolean>(false);
 
+  //chess IA Controller
 
 
+const [statusBoard, setStatusBoard] = useState(
+  controlBoard.ascii().split("\n")
+);
+const [kingIsInHake, setKingIsInHake] = useState(false);
+const allmoves = controlBoard.moves();
+
+const refrechshowBoard = () => {
+  setStatusBoard(controlBoard.ascii().split("\n"));
+};
+const makeUserMove = (uci: string) => {
+
+  
+  
+  let extraMove = "";
+
+  if (allmoves.includes(uci + "+")) {
+    extraMove = "+";
+    setKingIsInHake(true);
+  }
+  if (allmoves.includes(uci + "#")) {
+    extraMove = "#";
+    setKingIsInHake(true);
+  }
+
+  try {
+    controlBoard.move(uci + extraMove);
+  } catch (error) {
+    console.log("error", error);
+  }
+
+  refrechshowBoard();
+};
+
+
+
+  const IAMakeMove = () => {
+    let moveIsKill = false;
+    let moveSaved = "";
+  
+    const moves = controlBoard.moves();
+    
+    let move =""
+    if (moves.length === 0) {
+
+      setReyIsDeath(true)
+      setShowAlert(true)
+      
+      setResult('Partida terminada')
+      
+    }else{
+      move = moves[Math.floor(Math.random() * moves.length)] == 'O-O' ? moves[Math.floor(Math.random() * moves.length)] : moves[Math.floor(Math.random() * moves.length)];
+      const moveCanBeKill = moves.find((m) => m[1] === "x");
+      if (moveCanBeKill) {
+        moveSaved = moveCanBeKill;
+        controlBoard.move(moveCanBeKill);
+    
+        moveIsKill = true;
+    
+      } else {
+        moveSaved = move;
+        controlBoard.move(move);
+      }
+    }
+   
+    
+    
+   
+  
+    refrechshowBoard();
+    const history = controlBoard.history({ verbose: true });
+    
+
+    saveToBackup({newMove:moveSaved, saveMove: setHistory})
+    return {
+      from: history[history.length - 1].from,
+      to: history[history.length - 1].to,
+      moveIsKill,
+      moves
+    };
+  };
+
+
+useEffect(() => {
+  if (isPlayerVSIA && userTurn === 'black') {
+    
+    
+    if (turn === "black" && userTurn === "black") {
+      
+      const result = IAMakeMove()!;
+
+      if (result.moveIsKill ) {
+        const piecePlayerToRemove = piecesWhite.filter(
+          (piece) => piece.initialPlace !== result.to
+        );
+
+        setPiecesWhite(piecePlayerToRemove);
+      }
+
+      const seletedEnemyPiece: Piece | undefined = piecesBlack.find(
+        (piece) => piece.initialPlace === result.from
+      );
+
+      if ( seletedEnemyPiece === undefined) return
+      
+      
+      
+      const ollPieves = piecesBlack.filter(
+        (piece) => piece.idPiece !== seletedEnemyPiece?.idPiece
+      );
+     
+      
+      
+      setPiecesBlack([...ollPieves, { ...seletedEnemyPiece, initialPlace: result.to }]);
+      setUserTurn("white");
+      setTurn("white");
+   
+    }
+
+  }}
+, [userTurn])
+
+
+
+
+  //***************************************
+  const changeGreatAlert = () => {
+    socket.emit("changeAlert", "great");
+  
+  }
 
   const changeNiceAlert = () => {
     socket.emit("changeAlert", "nice");
    
+  }
+
+  const changeGoodAlert = () => {
+    socket.emit("changeAlert", "good");
+
   }
   const activeNiceAlert = () => {
     setNiceAlert(true);
@@ -129,21 +269,13 @@ export const GameContextProvider = ({ children }: any) => {
     }, 3000);
   }
 
-  const changeGreatAlert = () => {
-    socket.emit("changeAlert", "great");
-  
-  }
-
   const activeGreatAlert = () => {
     setGreatAlert(true);
     setTimeout(() => {
       setGreatAlert(false);
     }, 3000);
   }
-  const changeGoodAlert = () => {
-    socket.emit("changeAlert", "good");
-
-  }
+  
 
   const activeGoodAlert = () => {
     setGoodAlert(true);
@@ -357,6 +489,11 @@ export const GameContextProvider = ({ children }: any) => {
         setUserTurn,
         setReyIsDeath,
         setResult,
+        saveToBackup,
+        setHistory,
+        isPlayerVSIA,
+        makeUserMove,
+        isPlayerVsPlayer,
       });
     }
 
@@ -393,6 +530,11 @@ export const GameContextProvider = ({ children }: any) => {
         setUserTurn,
         setReyIsDeath,
         setResult,
+        saveToBackup,
+        setHistory,
+        
+        
+        isPlayerVsPlayer
       });
     }
   };
@@ -418,6 +560,8 @@ export const GameContextProvider = ({ children }: any) => {
         setIsPeonInGoal,
         setShowAlert,
         setKingIsHake,
+        makeUserMove,
+        isPlayerVSIA,
       });
      
       
@@ -486,7 +630,12 @@ export const GameContextProvider = ({ children }: any) => {
     goodAlert,
     isMultiJugador, setIsMultiJugador,
     makeSetupMultiJugador,
-    playerSurrender
+    playerSurrender,
+    statusBoard,
+    isPlayerVSIA, 
+    setIsPlayerVSIA,
+    isPlayerVsPlayer, 
+    setIsPlayerVsPlayer
     
   };
 
