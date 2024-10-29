@@ -8,11 +8,11 @@ import { Chess } from "chess.js";
 
 
 
-const socket = io('https://multjugador-jedrez.onrender.com/'); // https://multjugador-jedrez.onrender.com/
+const socket = io('no-canvas-ajedrez-multijugador.onrender.com'); // https://multjugador-jedrez.onrender.com/
 
 const controlBoard = new Chess();
 
-console.log('socket', document.location.hostname);
+console.log('socket',);
 
 
 //react-jedrez.netlify.app
@@ -71,6 +71,7 @@ interface IGameContext {
   isPlayerVsPlayer: boolean;
   setIsPlayerVsPlayer: React.Dispatch<React.SetStateAction<boolean>>
   kingIsInHake: boolean;
+  isAvilableMP: boolean;
 }
 
 
@@ -107,6 +108,7 @@ export const GameContextProvider = ({ children }: any) => {
   const [turn, setTurn] = useState<string>("white");
   const [userTurn, setUserTurn] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
+  const [isAvilableMP, setIsAvilableMP] = useState<boolean>(false);
 
   const [reyIsDeath, setReyIsDeath] = useState<boolean>(false);
   const [result, setResult] = useState<string>("");
@@ -210,6 +212,10 @@ export const GameContextProvider = ({ children }: any) => {
 
 
   useEffect(() => {
+    if (document.location.hostname === "no-canvas-ajedrez-multijugador.onrender.com") {
+      setIsAvilableMP(true)
+    }
+
     if (isPlayerVSIA && userTurn === 'black') {
 
 
@@ -643,8 +649,8 @@ export const GameContextProvider = ({ children }: any) => {
     setIsPlayerVSIA,
     isPlayerVsPlayer,
     setIsPlayerVsPlayer,
-    kingIsInHake
-
+    kingIsInHake,
+    isAvilableMP
   };
 
   return <gameContext.Provider value={values}>{children}</gameContext.Provider>;

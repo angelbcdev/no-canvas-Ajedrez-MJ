@@ -41,7 +41,10 @@ Utilizando Socket.IO, el juego permite partidas en tiempo real entre jugadores c
       </div>
 
 
-[Pagina Multijugador](https://multjugador-jedrez.onrender.com/)
+[Jugar local](https://react-jedrez.netlify.app/)
+
+[Jugar multijugador](https://https://no-canvas-ajedrez-multijugador.onrender.com/)
+
 
 ## Características
 

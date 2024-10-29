@@ -69,12 +69,12 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
       <div className="text-2xl text-center mt-4 py-2  bg-black text-white rounded-lg relative">
         <p>{userTurn != 'espectador' ? userTurn : ''}</p>
         <span className="h-3">
-          {userTurn !== 'espectador' ? userTurn == turn ? "Tu turno" : "Turno del oponente" : (<p className="h-20 items-center text-xl flex justify-center ">espectador</p>)}
+          {userTurn !== 'espectador' ? userTurn == turn ? "Your turn" : "Turn of opponent" : (<p className="h-20 items-center text-xl flex justify-center ">waching</p>)}
         </span>
         <div
           onClick={() => setShowPiecesCount(!showPiecesCount)}
-          className="absolute top-4 sm:top-[30px] right-3 bg-blue-600 rounded-full">
-          <p className="text-sm px-2">{showPiecesCount ? "Mostrar piezas" : "Ocultar piezas"}</p>
+          className={`absolute bg-blue-600 ${showPiecesCount ? "bottom-[140px]" : "top-[30px]"} sm:top-[30px] right-0 sm:right-3  rounded-md`}>
+          <p className="text-sm px-4 py-1 ">{!showPiecesCount ? "Show pieces" : "Hide pieces"}</p>
         </div>
       </div>
     </div>
