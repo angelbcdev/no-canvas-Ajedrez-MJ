@@ -15,6 +15,8 @@ const controlBoard = new Chess();
 console.log('socket', document.location.hostname);
 
 
+//react-jedrez.netlify.app
+
 interface IGameContext {
   piecesWhite: Piece[];
   piecesBlack: Piece[];

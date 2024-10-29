@@ -41,7 +41,7 @@ Utilizando Socket.IO, el juego permite partidas en tiempo real entre jugadores c
       </div>
 
 
-[Pagina Web](https://multjugador-jedrez.onrender.com/)
+[Pagina Multijugador](https://multjugador-jedrez.onrender.com/)
 
 ## Características
 
