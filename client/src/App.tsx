@@ -8,9 +8,9 @@ import Board from "./components/Board";
 
 
 function App() {
-  
+
   return (
-    <main className="w-screen h-screen bg-gray-600 flex flex-col sm:justify-center items-center">
+    <main className="w-screen h-full sm:py-10 bg-gray-600 flex flex-col sm:justify-center items-center">
       <CoverBoard />
       <UIMultiJugador>
         <Board />

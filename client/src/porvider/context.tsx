@@ -12,6 +12,7 @@ const socket = io('https://multjugador-jedrez.onrender.com/'); // https://multju
 
 const controlBoard = new Chess();
 
+console.log('socket', document.location.hostname);
 
 
 interface IGameContext {

@@ -27,7 +27,7 @@ Utilizando Socket.IO, el juego permite partidas en tiempo real entre jugadores c
 - **WebSocket**: Socket.IO
 
 <div align="center">
-        <a href="https://github.com/54albert54" target="_blank" rel="author">
+        <a href="https://github.com/angelbcdev" target="_blank" rel="author">
           <img width="110" src="https://avatars.githubusercontent.com/u/126289455?v=4"/>
         </a>
           <h4 style="margin-top: 1rem;">Angel Bernechea</h4>

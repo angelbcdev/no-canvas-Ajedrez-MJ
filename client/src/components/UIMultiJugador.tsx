@@ -3,8 +3,8 @@ import useGameContext from "../porvider/context";
 import { Piece, PieceName } from "../porvider/data";
 
 const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
-  const { userTurn,  turn, piecesWhite, piecesBlack,
-     showPiecesCount, setShowPiecesCount, history, piecetomove ,isMultiJugador} = useGameContext();
+  const { userTurn, turn, piecesWhite, piecesBlack,
+    showPiecesCount, setShowPiecesCount, history, piecetomove, isMultiJugador } = useGameContext();
   const [showHistory, setShowHistory] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -26,12 +26,12 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
     <div className="font-montserrat  select-none relative ">
       {isMultiJugador && <ObserverViews />}
 
-      
+
       <div className="relative"
         onClick={() => setShowHistory(!showHistory)}
       >
         <p className=" text-2xl text-center mb-6 py-3  bg-black text-white rounded-lg ">Last Move: {history[history.length - 1]}</p>
-        <p className=" absolute bottom-4 left-4 z-30 text-center  bg-black text-white rounded-lg ">{showHistory ? "Hide History" : "Show History"}</p>
+        <p className=" absolute bottom-4 left-4 z-30 text-center  bg-slate-600 px-2 text-white rounded-lg cursor-pointer ">{showHistory ? "Hide History" : "Show History"}</p>
         <div
           ref={scrollContainerRef}
           className={` overflow-scroll absolute  top-10 ${!showHistory ? "z-0 h-10 bg-black overflow-hidden hidden" : " z-40  h-[300px] bg-[#f0efef]"} flex flex-col gap-3 w-[160px] left-0  rounded-2xl p-6 animation-all duration-300 `}>
@@ -63,7 +63,7 @@ const UIMultiJugador = ({ children }: { children: React.ReactNode }) => {
         {showPiecesCount && <ShowCountPices pieces={piecesBlack} />}
       </div>
 
-      
+
 
 
       <div className="text-2xl text-center mt-4 py-2  bg-black text-white rounded-lg relative">
@@ -122,11 +122,11 @@ const ShowCountPices = ({ pieces }: { pieces: Piece[] }) => {
 }
 
 const ObserverViews = () => {
-  const { userTurn,  views ,niceAlert,
-    changeNiceAlert ,greatAlert, changeGreatAlert, changeGoodAlert,
+  const { userTurn, views, niceAlert,
+    changeNiceAlert, greatAlert, changeGreatAlert, changeGoodAlert,
     goodAlert, } = useGameContext();
   const isEpectador = userTurn == 'espectador'
-  
+
   return (<div className={`
   ${isEpectador ? 'pl-8' : 'justify-center '}
   z-50 text-2xl text-center mb-6 py-6  bg-black text-white rounded-lg flex flex-row items-center gap-4 w relative`}>
@@ -138,18 +138,18 @@ const ObserverViews = () => {
         <p onClick={changeNiceAlert} className="bg-blue-600 px-5 py-1 rounded-full hover:bg-blue-400 cursor-pointer" >Nice !!</p>
         <p onClick={changeGreatAlert} className="bg-green-600 px-5 py-1 rounded-full  hover:bg-green-400 cursor-pointer" >great !!</p>
         <p onClick={changeGoodAlert} className="bg-orange-600 px-5 py-1 rounded-full hover:bg-orange-400 cursor-pointer">Uiii !!</p>
-      
+
       </section>
     }
 
 
-      <section className=" w-[443px] sm:w-[520px] h-[200px] flex flex-col items-center gap-2 left-0 text-sm justify-evenly absolute top-72 bg-transparent  text-white rounded-lg    pointer-events-none ">
-      { niceAlert && <p className="bg-blue-600 px-5 py-1 rounded-full hover:bg-blue-400 cursor-pointer animate-bounce" >Nice played !!</p>}
-       {greatAlert && <p className="bg-green-600 px-5 py-1 rounded-full  hover:bg-green-400 cursor-pointer animate-bounce delay-500" >great moved !!</p>}
-        {goodAlert && <p className="bg-orange-600 px-5 py-1 rounded-full hover:bg-orange-400 cursor-pointer animate-bounce">whoo now can you do? !!</p>}
-        
-        {/* <p className="bg-red-600 px-5 py-1 rounded-full hover:bg-red-400 cursor-pointer  a  animate-bounce delay-500">Holaaa {turn}</p> */}
-      </section>
+    <section className=" w-[443px] sm:w-[520px] h-[200px] flex flex-col items-center gap-2 left-0 text-sm justify-evenly absolute top-72 bg-transparent  text-white rounded-lg    pointer-events-none ">
+      {niceAlert && <p className="bg-blue-600 px-5 py-1 rounded-full hover:bg-blue-400 cursor-pointer animate-bounce" >Nice played !!</p>}
+      {greatAlert && <p className="bg-green-600 px-5 py-1 rounded-full  hover:bg-green-400 cursor-pointer animate-bounce delay-500" >great moved !!</p>}
+      {goodAlert && <p className="bg-orange-600 px-5 py-1 rounded-full hover:bg-orange-400 cursor-pointer animate-bounce">whoo now can you do? !!</p>}
+
+      {/* <p className="bg-red-600 px-5 py-1 rounded-full hover:bg-red-400 cursor-pointer  a  animate-bounce delay-500">Holaaa {turn}</p> */}
+    </section>
 
   </div>
   )
